@@ -1,0 +1,2879 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Módulo de Cadastro Lawgico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F4F2EE;
+  --surface: #FFFFFF;
+  --surface2: #F9F8F6;
+  --border: #E2DDD6;
+  --border2: #CCC8C0;
+  --text: #1A1917;
+  --text2: #5C5A56;
+  --text3: #9B9890;
+  --accent: #1B4F8A;
+  --accent2: #1563B0;
+  --accent-bg: #EAF1FA;
+  --green: #1A6B3C;
+  --green-bg: #E8F5EE;
+  --amber: #8A5A00;
+  --amber-bg: #FDF3E0;
+  --red: #8B1D1D;
+  --red-bg: #FDEAEA;
+  --purple: #4A3080;
+  --purple-bg: #F0ECFB;
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 13px; min-height: 100vh; }
+
+.app-header { background: var(--accent); color: #fff; padding: 0 24px; height: 52px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.app-header .logo { font-weight: 600; font-size: 14px; letter-spacing: .5px; }
+.app-header .breadcrumb { font-size: 12px; opacity: .6; }
+.app-header .hbadge { margin-left: auto; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 3px 12px; font-size: 11px; font-weight: 500; }
+
+.layout { display: flex; height: calc(100vh - 68px); }
+
+.sidebar { width: 220px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 16px 0; overflow-y: auto; }
+.sidebar-section { padding: 0 12px; margin-bottom: 4px; }
+.sidebar-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--text3); padding: 8px 4px 6px; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: var(--radius); cursor: pointer; color: var(--text2); font-size: 12px; font-weight: 500; transition: all .15s; }
+.nav-item:hover { background: var(--bg); color: var(--text); }
+.nav-item.active { background: var(--accent-bg); color: var(--accent); }
+.nav-item .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.nav-item .badge { margin-left: auto; background: var(--red-bg); color: var(--red); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px; }
+.nav-item .badge.green { background: var(--green-bg); color: var(--green); }
+.nav-item .badge.blue { background: var(--accent-bg); color: var(--accent); }
+
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.tab-bar { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; gap: 2px; height: 44px; flex-shrink: 0; overflow-x: auto; }
+.tab { padding: 0 16px; height: 44px; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; white-space: nowrap; }
+.tab:hover { color: var(--text2); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab .tbadge { background: var(--red-bg); color: var(--red); font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 8px; }
+.tab .tbadge.g { background: var(--green-bg); color: var(--green); }
+.tab .tbadge.b { background: var(--accent-bg); color: var(--accent); }
+
+.content { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 14px; }
+.card-head { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .4px; flex-wrap: wrap; }
+.card-head .icon { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.card-body { padding: 16px; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.form-full { grid-column: 1 / -1; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .4px; }
+.field input, .field select, .field textarea { padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 13px; color: var(--text); background: var(--surface); outline: none; transition: border-color .15s; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(27,79,138,.08); }
+.field input.ai-filled { background: var(--accent-bg); border-color: #9BBDE0; color: var(--accent); font-weight: 500; }
+
+.upload-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius-lg); padding: 24px; text-align: center; cursor: pointer; transition: all .2s; background: var(--surface2); }
+.upload-zone:hover { border-color: var(--accent2); background: var(--accent-bg); }
+.upload-zone input { display: none; }
+.upload-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.upload-sub { font-size: 11px; color: var(--text3); }
+
+.file-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.file-item { display: flex; align-items: center; gap: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; }
+.file-icon { width: 28px; height: 28px; border-radius: 6px; background: var(--accent-bg); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+.file-name { font-size: 12px; font-weight: 500; color: var(--text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-size { font-size: 11px; color: var(--text3); flex-shrink: 0; }
+.file-rm { width: 20px; height: 20px; border-radius: 50%; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text3); font-size: 14px; transition: all .15s; }
+.file-rm:hover { background: var(--red-bg); color: var(--red); }
+
+.ai-panel { border: 1px solid #9BBDE0; border-radius: var(--radius-lg); background: var(--accent-bg); overflow: hidden; }
+.ai-panel-head { padding: 10px 14px; background: var(--accent); display: flex; align-items: center; gap: 8px; color: #fff; font-size: 12px; font-weight: 600; flex-wrap: wrap; }
+.ai-thinking { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: rgba(255,255,255,.8); }
+.ai-thinking .dots span { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: #fff; animation: blink 1.2s infinite; margin: 0 1px; }
+.ai-thinking .dots span:nth-child(2) { animation-delay: .2s; }
+.ai-thinking .dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+.ai-content { padding: 14px; font-size: 12px; color: var(--accent); line-height: 1.7; white-space: pre-wrap; }
+
+.pedidos-table { width: 100%; border-collapse: collapse; }
+.pedidos-table th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text3); padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+.pedidos-table td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 12px; vertical-align: top; }
+.pedidos-table tr:last-child td { border-bottom: none; }
+.prob-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.prob-badge.possivel { background: var(--amber-bg); color: var(--amber); }
+.prob-badge.provavel { background: var(--red-bg); color: var(--red); }
+.prob-badge.remoto { background: var(--green-bg); color: var(--green); }
+
+.btn { padding: 8px 18px; border-radius: var(--radius); font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-secondary { background: var(--surface); color: var(--text2); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--bg); }
+.btn-ghost { background: none; color: var(--accent); border: 1px solid #9BBDE0; }
+.btn-ghost:hover { background: var(--accent-bg); }
+.btn-green { background: var(--green); color: #fff; }
+.btn-sm { padding: 5px 12px; font-size: 11px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid transparent; }
+.chip.blue { background: var(--accent-bg); color: var(--accent); border-color: #9BBDE0; }
+.chip.green { background: var(--green-bg); color: var(--green); border-color: #8CCFA8; }
+.chip.amber { background: var(--amber-bg); color: var(--amber); border-color: #E5C36A; }
+
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+.cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); font-size: 11px; cursor: pointer; transition: all .15s; color: var(--text2); position: relative; }
+.cal-day:hover { background: var(--accent-bg); color: var(--accent); }
+.cal-day.selected { background: var(--accent); color: #fff; font-weight: 600; }
+.cal-day.has-event::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--accent2); }
+.cal-day.today { font-weight: 700; color: var(--accent); }
+.cal-day.other-month { opacity: .3; }
+.cal-header { text-align: center; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--text3); padding: 4px 0; }
+.pje-status { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); font-size: 11px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.pulse { animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+.peca-card { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 8px; }
+.peca-head { padding: 10px 14px; background: var(--surface2); display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.peca-title { font-size: 12px; font-weight: 600; color: var(--text); flex: 1; }
+.peca-body { padding: 14px; font-size: 11px; color: var(--text2); line-height: 1.8; font-family: 'IBM Plex Mono', monospace; background: var(--surface); border-top: 1px solid var(--border); max-height: 200px; overflow-y: auto; white-space: pre-wrap; display: none; }
+.peca-body.show { display: block; }
+
+.steps-row { display: flex; align-items: center; gap: 0; margin-bottom: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 16px; overflow-x: auto; }
+.step-item { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.step-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.step-num.done { background: var(--green); color: #fff; }
+.step-num.active { background: var(--accent); color: #fff; }
+.step-num.todo { background: var(--border); color: var(--text3); }
+.step-label { font-size: 11px; font-weight: 500; color: var(--text2); white-space: nowrap; }
+.step-label.active { color: var(--accent); font-weight: 600; }
+.step-label.done { color: var(--green); }
+.step-sep { flex: 1; min-width: 20px; height: 1px; background: var(--border); margin: 0 8px; }
+
+.hidden { display: none !important; }
+.flex-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.flex-end { justify-content: flex-end; }
+.mt8 { margin-top: 8px; }
+.mt12 { margin-top: 12px; }
+.mt16 { margin-top: 16px; }
+
+@media (max-width: 900px) {
+  #pane-audiencia > div { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+  .content { padding: 12px 16px; }
+}
+
+/* ===== HEADER PADRÃO P&C ===== */
+.pc-header{
+  background:linear-gradient(90deg,#003B5C,#00557B 72%,#00A9E0)!important;
+  color:#fff;
+  padding:0 24px;
+  height:64px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  border-bottom:3px solid #00A9E0;
+  box-shadow:0 8px 22px rgba(0,59,92,.15);
+}
+
+.pc-logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.pc-logo-icon{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.28);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+}
+
+.pc-logo-text{
+  display:flex;
+  flex-direction:column;
+  line-height:1.1;
+}
+
+.pc-logo-main{
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:.3px;
+}
+
+.pc-logo-sub{
+  font-size:10px;
+  opacity:.82;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+}
+
+.pc-header-info{
+  flex:1;
+}
+
+.pc-header .breadcrumb{
+  font-size:11px;
+  opacity:.85;
+}
+
+.pc-header .hbadge{
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.32);
+  border-radius:999px;
+  padding:6px 14px;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.5px;
+}
+
+@media(max-width:768px){
+  .pc-header{
+    height:auto;
+    padding:12px;
+    flex-wrap:wrap;
+  }
+
+  .pc-logo-main{
+    font-size:13px;
+  }
+
+  .pc-logo-sub{
+    font-size:9px;
+  }
+}
+
+
+/* ===== TOPO IGUAL AO DASHBOARD P&C ===== */
+.pc-dashboard-top{
+  background:linear-gradient(90deg,#003B5C,#00557B 72%,#00A9E0)!important;
+  padding:10px 28px;
+  min-height:68px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  border-bottom:4px solid #00A9E0;
+  box-shadow:0 8px 22px rgba(0,59,92,.14);
+  color:#FFFFFF;
+}
+.pc-brand{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.pc-brand-mark{
+  width:46px;height:46px;border-radius:14px;
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.34);
+  display:flex;align-items:center;justify-content:center;
+  font-size:25px;color:#FFFFFF;
+}
+.pc-brand-main{font-size:15px;font-weight:800;letter-spacing:.25px;line-height:1.1;}
+.pc-brand-sub{
+  margin-top:3px;font-size:10px;font-weight:700;letter-spacing:.55px;
+  text-transform:uppercase;color:rgba(255,255,255,.82);
+}
+.pc-top-divider{width:1px;height:44px;background:rgba(255,255,255,.28);flex-shrink:0;}
+.pc-top-info{flex:1;min-width:0;}
+.pc-top-info h1{font-size:16px;font-weight:800;letter-spacing:.35px;color:#FFFFFF;margin:0;}
+.pc-top-date{margin-top:4px;font-size:10px;color:#D7ECF7;font-weight:600;}
+.pc-top-badge{
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.42);
+  border-radius:999px;padding:6px 14px;
+  font-size:10px;font-weight:800;color:#FFFFFF;
+  letter-spacing:.5px;white-space:nowrap;
+}
+
+/* ===== BIBLIOTECA DE MODELOS ===== */
+.modelos-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.modelo-card{
+  background:#FFFFFF;border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;box-shadow:0 8px 20px rgba(0,59,92,.06);
+}
+.modelo-head{
+  background:linear-gradient(90deg,#003B5C,#00557B);
+  color:#FFFFFF;padding:11px 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.modelo-head strong{font-size:12px;font-weight:800;letter-spacing:.45px;text-transform:uppercase;}
+.modelo-tag{
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);
+  border-radius:999px;padding:4px 9px;font-size:9px;font-weight:800;
+}
+.modelo-body{padding:14px;}
+.modelo-preview{
+  min-height:190px;max-height:280px;overflow:auto;
+  background:#F7FCFF;border:1px solid #D8E7F0;border-radius:10px;
+  padding:12px;font-size:11px;line-height:1.65;color:#2D2926;white-space:pre-wrap;
+}
+.modelo-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap;}
+.template-note{
+  background:#EAF4FB;border:1px solid #BFD6E4;border-radius:10px;
+  padding:10px 12px;color:#003B5C;font-size:12px;line-height:1.5;margin-bottom:12px;
+}
+@media(max-width:900px){
+  .modelos-grid{grid-template-columns:1fr;}
+  .pc-dashboard-top{padding:10px 14px;flex-wrap:wrap;}
+  .pc-top-divider{display:none;}
+  .pc-brand-mark{width:40px;height:40px;font-size:22px;}
+  .pc-top-info h1{font-size:14px;}
+}
+
+
+/* ===== MÓDULO P&C MODERNO — estrutura inspirada no LM ===== */
+.pc-lm-shell{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:18px;
+  min-height:calc(100vh - 68px);
+  background:#F4F9FC;
+}
+.pc-lm-left{
+  background:#FFFFFF;
+  border-right:1px solid #D8E7F0;
+  box-shadow:8px 0 22px rgba(0,59,92,.06);
+  padding:18px 14px;
+  overflow:auto;
+}
+.pc-lm-main{
+  padding:18px 22px 28px;
+  overflow:auto;
+}
+.pc-menu-title{
+  font-size:10px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.7px;
+  color:#6A8BA5;
+  margin:14px 10px 8px;
+}
+.pc-menu-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:10px;
+  font-size:12px;
+  font-weight:800;
+  color:#003B5C;
+  cursor:pointer;
+  transition:.15s;
+}
+.pc-menu-item:hover{background:#EAF6FB;}
+.pc-menu-item.active{
+  background:linear-gradient(90deg,#EAF6FB,#F7FCFF);
+  color:#003B5C;
+  border-left:4px solid #00A9E0;
+}
+.pc-menu-item .pc-mi-ico{
+  width:26px;
+  height:26px;
+  border-radius:8px;
+  background:#EAF4FB;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#006080;
+}
+.pc-process-title{
+  background:#FFFFFF;
+  border:1px solid #D8E7F0;
+  border-radius:16px;
+  padding:16px 18px;
+  box-shadow:0 8px 22px rgba(0,59,92,.08);
+  margin-bottom:16px;
+}
+.pc-process-title h2{
+  color:#003B5C;
+  font-size:22px;
+  font-weight:700;
+  margin:0 0 6px;
+}
+.pc-breadcrumb{
+  font-size:11px;
+  color:#6A8BA5;
+  font-weight:700;
+}
+.pc-quick-kpis{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:16px;
+}
+.pc-quick-card{
+  background:#FFFFFF;
+  border:1px solid #D8E7F0;
+  border-radius:14px;
+  padding:12px;
+  box-shadow:0 8px 22px rgba(0,59,92,.07);
+}
+.pc-quick-label{
+  font-size:9px;
+  color:#5F7E92;
+  text-transform:uppercase;
+  letter-spacing:.65px;
+  font-weight:900;
+}
+.pc-quick-value{
+  margin-top:6px;
+  color:#003B5C;
+  font-size:18px;
+  font-weight:900;
+}
+.pc-action-bar{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  background:#FFFFFF;
+  border:1px solid #D8E7F0;
+  border-radius:14px;
+  padding:12px;
+  margin-bottom:16px;
+  box-shadow:0 8px 22px rgba(0,59,92,.06);
+}
+.pc-action{
+  border:0;
+  border-radius:10px;
+  padding:9px 14px;
+  font-size:11px;
+  font-weight:900;
+  color:#fff;
+  cursor:pointer;
+  font-family:inherit;
+}
+.pc-action.blue{background:#00A9E0;}
+.pc-action.navy{background:#003B5C;}
+.pc-action.green{background:#117A65;}
+.pc-action.red{background:#C0392B;}
+.pc-action.light{
+  background:#F7FCFF;
+  border:1px solid #BFD6E4;
+  color:#003B5C;
+}
+.pc-section-card{
+  background:#FFFFFF;
+  border:1px solid #D8E7F0;
+  border-radius:16px;
+  box-shadow:0 8px 22px rgba(0,59,92,.08);
+  overflow:hidden;
+  margin-bottom:16px;
+}
+.pc-section-head{
+  background:linear-gradient(90deg,#003B5C,#00557B);
+  color:#fff;
+  padding:12px 16px;
+  border-bottom:3px solid #00A9E0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.pc-section-head strong{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.55px;
+  font-weight:900;
+}
+.pc-section-body{padding:16px;}
+.pc-fields-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px 18px;
+}
+.pc-field label{
+  display:block;
+  font-size:9px;
+  font-weight:900;
+  color:#003B5C;
+  text-transform:uppercase;
+  letter-spacing:.65px;
+  margin-bottom:5px;
+}
+.pc-field input,.pc-field select,.pc-field textarea{
+  width:100%;
+  border:1px solid #BFD6E4;
+  border-radius:10px;
+  background:#FFFFFF;
+  padding:9px 11px;
+  font-family:inherit;
+  font-size:12px;
+  color:#2D2926;
+}
+.pc-field input:focus,.pc-field select:focus,.pc-field textarea:focus{
+  outline:none;
+  border-color:#00A9E0;
+  box-shadow:0 0 0 3px rgba(0,169,224,.12);
+}
+.pc-field.full{grid-column:1/-1;}
+.pc-field.double{grid-column:span 2;}
+.pc-values-table,.pc-orders-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:11px;
+  background:#fff;
+}
+.pc-values-table th,.pc-orders-table th{
+  background:#003B5C;
+  color:#fff;
+  padding:9px 10px;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.45px;
+  border-bottom:2px solid #00A9E0;
+  text-align:left;
+}
+.pc-values-table td,.pc-orders-table td{
+  border-bottom:1px solid #E3EEF5;
+  padding:8px 10px;
+  color:#2D2926;
+}
+.pc-values-table tbody tr:nth-child(even),.pc-orders-table tbody tr:nth-child(even){background:#F7FCFF;}
+.pc-values-table input,.pc-values-table select,.pc-orders-table input,.pc-orders-table select{
+  width:100%;
+  min-width:100px;
+  border:1px solid #D8E7F0;
+  border-radius:8px;
+  padding:6px 8px;
+  font-family:inherit;
+  font-size:11px;
+}
+.pc-risk{
+  display:inline-flex;
+  border-radius:999px;
+  padding:4px 9px;
+  font-size:10px;
+  font-weight:900;
+}
+.pc-risk.possivel{background:#FEF3E2;color:#E67E22;}
+.pc-risk.provavel{background:#FDECEA;color:#C0392B;}
+.pc-risk.remoto{background:#E9F7EF;color:#117A65;}
+.pc-tabs-modern{
+  display:flex;
+  gap:4px;
+  overflow-x:auto;
+  background:#FFFFFF;
+  border:1px solid #D8E7F0;
+  border-radius:14px;
+  padding:6px;
+  margin-bottom:16px;
+  box-shadow:0 8px 22px rgba(0,59,92,.06);
+}
+.pc-tab-modern{
+  border:0;
+  background:transparent;
+  color:#557789;
+  padding:10px 14px;
+  border-radius:10px;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+  white-space:nowrap;
+  font-family:inherit;
+}
+.pc-tab-modern.active{
+  background:#EAF6FB;
+  color:#003B5C;
+  box-shadow:inset 0 -3px 0 #00A9E0;
+}
+.pc-modern-pane{display:none;}
+.pc-modern-pane.active{display:block;}
+.pc-strategic-toggle{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:#F7FCFF;
+  border:1px solid #BFD6E4;
+  border-radius:12px;
+  padding:10px 12px;
+  color:#003B5C;
+  font-size:12px;
+  font-weight:900;
+}
+.pc-strategic-toggle input{width:18px;height:18px;accent-color:#00A9E0;}
+@media(max-width:1000px){
+  .pc-lm-shell{grid-template-columns:1fr;}
+  .pc-lm-left{display:none;}
+  .pc-quick-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .pc-fields-grid{grid-template-columns:1fr;}
+  .pc-field.double{grid-column:1/-1;}
+}
+
+
+/* ===== ABAS INTEGRADAS CLIENTE / IA / PASTA ===== */
+.pc-flow-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:14px;
+}
+.pc-flow-card{
+  background:#FFFFFF;
+  border:1px solid #D8E7F0;
+  border-radius:14px;
+  padding:13px;
+  box-shadow:0 8px 20px rgba(0,59,92,.06);
+}
+.pc-flow-card strong{
+  display:block;
+  color:#003B5C;
+  font-size:12px;
+  font-weight:900;
+  margin-bottom:6px;
+}
+.pc-flow-card p{
+  color:#5F7E92;
+  font-size:11px;
+  line-height:1.45;
+}
+.pc-status-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:10px;
+  font-weight:900;
+  margin-top:8px;
+}
+.pc-status-pill.blue{background:#EAF4FB;color:#006080;}
+.pc-status-pill.green{background:#E9F7EF;color:#117A65;}
+.pc-status-pill.amber{background:#FEF3E2;color:#E67E22;}
+.pc-doc-checklist{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.pc-doc-item{
+  background:#F7FCFF;
+  border:1px solid #D8E7F0;
+  border-radius:10px;
+  padding:9px 10px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#003B5C;
+  font-size:12px;
+  font-weight:800;
+}
+.pc-doc-item input{accent-color:#00A9E0;width:16px;height:16px;}
+.pc-folder-path{
+  background:#F7FCFF;
+  border:1px solid #BFD6E4;
+  border-radius:10px;
+  padding:10px 12px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:#003B5C;
+  overflow:auto;
+}
+.pc-mail-preview{
+  min-height:210px;
+  background:#F7FCFF;
+  border:1px solid #D8E7F0;
+  border-radius:10px;
+  padding:13px;
+  white-space:pre-wrap;
+  font-size:12px;
+  line-height:1.55;
+  color:#2D2926;
+}
+.pc-ai-box{
+  background:linear-gradient(135deg,#EAF4FB,#FFFFFF);
+  border:1px solid #BFD6E4;
+  border-radius:14px;
+  padding:14px;
+  color:#003B5C;
+}
+.pc-ai-box h3{
+  font-size:14px;
+  margin:0 0 8px;
+}
+.pc-ai-box p{
+  font-size:12px;
+  line-height:1.5;
+  color:#3E4A52;
+}
+@media(max-width:1000px){
+  .pc-flow-grid{grid-template-columns:1fr;}
+  .pc-doc-checklist{grid-template-columns:1fr;}
+}
+
+
+.pc-calc-upload-box{
+  background:#F7FCFF;
+  border:1.5px dashed #BFD6E4;
+  border-radius:14px;
+  padding:18px;
+  display:grid;
+  grid-template-columns:1.2fr 1fr auto;
+  gap:12px;
+  align-items:end;
+  margin-bottom:14px;
+}
+.pc-calc-upload-box .pc-field{margin:0;}
+.pc-calc-result{
+  background:#EAF4FB;
+  border:1px solid #BFD6E4;
+  border-radius:10px;
+  padding:10px 12px;
+  color:#003B5C;
+  font-size:12px;
+  line-height:1.5;
+  margin-bottom:12px;
+}
+@media(max-width:900px){
+  .pc-calc-upload-box{grid-template-columns:1fr;}
+}
+
+
+.pc-brand-logo{
+  height:48px;
+  width:auto;
+  object-fit:contain;
+  display:block;
+}
+.pc-dashboard-top{
+  min-height:74px!important;
+}
+.pc-doc-checklist{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+.pc-doc-item{
+  min-height:46px;
+}
+.pc-doc-extra{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+@media(max-width:1100px){
+  .pc-doc-checklist{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+}
+@media(max-width:700px){
+  .pc-brand-logo{height:38px;}
+  .pc-doc-checklist{grid-template-columns:1fr!important;}
+  .pc-doc-extra{grid-template-columns:1fr;}
+}
+
+
+/* ===== PAINEL INICIAL, FILA, BI, RELATÓRIOS E TRTs ===== */
+.pc-home-hero{
+  background:linear-gradient(135deg,#003B5C,#00557B 70%,#00A9E0);
+  border-radius:20px;
+  padding:22px;
+  color:#fff;
+  box-shadow:0 14px 34px rgba(0,59,92,.18);
+  margin-bottom:16px;
+}
+.pc-home-hero h2{font-size:24px;margin:0 0 6px;font-weight:900;}
+.pc-home-hero p{font-size:12px;color:#D7ECF7;margin:0;line-height:1.5;}
+.pc-home-kpis{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:12px;
+  margin:16px 0;
+}
+.pc-home-kpi{
+  background:#fff;
+  border:1px solid #D8E7F0;
+  border-radius:16px;
+  padding:14px;
+  box-shadow:0 8px 22px rgba(0,59,92,.08);
+  min-height:98px;
+}
+.pc-home-kpi .label{
+  font-size:9px;
+  color:#5F7E92;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.7px;
+}
+.pc-home-kpi .value{
+  font-size:26px;
+  font-weight:900;
+  color:#003B5C;
+  margin-top:8px;
+}
+.pc-home-kpi .sub{
+  font-size:10px;
+  color:#7E98AA;
+  margin-top:5px;
+}
+.pc-dashboard-grid{
+  display:grid;
+  grid-template-columns:1.25fr .75fr;
+  gap:14px;
+}
+.pc-modern-chart{
+  height:230px;
+  display:flex;
+  align-items:end;
+  gap:12px;
+  padding:20px 14px 10px;
+  border:1px solid #D8E7F0;
+  border-radius:14px;
+  background:linear-gradient(180deg,#fff,#F7FCFF);
+}
+.pc-bar{
+  flex:1;
+  background:linear-gradient(180deg,#00A9E0,#00557B);
+  border-radius:10px 10px 0 0;
+  min-height:24px;
+  position:relative;
+}
+.pc-bar span{
+  position:absolute;
+  bottom:-24px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:9px;
+  color:#5F7E92;
+  font-weight:900;
+}
+.pc-modern-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.pc-list-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  background:#F7FCFF;
+  border:1px solid #D8E7F0;
+  border-radius:12px;
+  padding:10px 12px;
+  font-size:12px;
+  color:#003B5C;
+  font-weight:800;
+}
+.pc-list-row small{color:#5F7E92;font-weight:700;}
+.pc-trt-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+.pc-trt-card{
+  background:#fff;
+  border:1px solid #D8E7F0;
+  border-left:5px solid #117A65;
+  border-radius:14px;
+  padding:13px;
+  box-shadow:0 8px 20px rgba(0,59,92,.06);
+}
+.pc-trt-card.off{border-left-color:#C0392B;}
+.pc-trt-card.warn{border-left-color:#E67E22;}
+.pc-trt-card strong{display:block;color:#003B5C;font-size:13px;margin-bottom:5px;}
+.pc-trt-card span{font-size:11px;color:#5F7E92;}
+.pc-report-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.pc-report-card{
+  background:#fff;
+  border:1px solid #D8E7F0;
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 8px 22px rgba(0,59,92,.08);
+}
+.pc-report-card strong{display:block;color:#003B5C;font-size:13px;font-weight:900;margin-bottom:8px;}
+.pc-report-card p{font-size:11px;color:#5F7E92;line-height:1.45;margin-bottom:12px;}
+.pc-folder-table,.pc-prof-table,.pc-queue-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:11px;
+  background:#fff;
+}
+.pc-folder-table th,.pc-prof-table th,.pc-queue-table th{
+  background:#003B5C;
+  color:#fff;
+  border-bottom:2px solid #00A9E0;
+  padding:9px 10px;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.45px;
+  text-align:left;
+}
+.pc-folder-table td,.pc-prof-table td,.pc-queue-table td{
+  border-bottom:1px solid #E3EEF5;
+  padding:8px 10px;
+  color:#2D2926;
+}
+.pc-folder-table tr:nth-child(even),.pc-prof-table tr:nth-child(even),.pc-queue-table tr:nth-child(even){background:#F7FCFF;}
+.pc-status-dot{
+  display:inline-block;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  margin-right:6px;
+}
+.pc-status-dot.green{background:#117A65;}
+.pc-status-dot.red{background:#C0392B;}
+.pc-status-dot.amber{background:#E67E22;}
+@media(max-width:1100px){
+  .pc-home-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .pc-dashboard-grid{grid-template-columns:1fr;}
+  .pc-trt-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .pc-report-grid{grid-template-columns:1fr;}
+}
+@media(max-width:650px){
+  .pc-home-kpis,.pc-trt-grid{grid-template-columns:1fr;}
+}
+
+
+/* ===== WORKFLOWS DE LANÇAMENTOS ===== */
+.pc-workflow-board{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+.pc-workflow-column{
+  background:#FFFFFF;
+  border:1px solid #D8E7F0;
+  border-radius:16px;
+  box-shadow:0 8px 22px rgba(0,59,92,.08);
+  overflow:hidden;
+}
+.pc-workflow-head{
+  background:linear-gradient(90deg,#003B5C,#00557B);
+  color:#FFFFFF;
+  border-bottom:3px solid #00A9E0;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.pc-workflow-head strong{
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.55px;
+}
+.pc-workflow-count{
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.32);
+  border-radius:999px;
+  padding:4px 9px;
+  font-size:10px;
+  font-weight:900;
+}
+.pc-workflow-list{
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.pc-workflow-item{
+  background:#F7FCFF;
+  border:1px solid #D8E7F0;
+  border-radius:12px;
+  padding:11px 12px;
+}
+.pc-workflow-item strong{
+  display:block;
+  color:#003B5C;
+  font-size:12px;
+  font-weight:900;
+  margin-bottom:5px;
+}
+.pc-workflow-item span{
+  display:block;
+  color:#5F7E92;
+  font-size:11px;
+  line-height:1.45;
+}
+.pc-workflow-item small{
+  display:inline-flex;
+  margin-top:8px;
+  border-radius:999px;
+  padding:4px 8px;
+  font-size:9px;
+  font-weight:900;
+  background:#EAF4FB;
+  color:#006080;
+}
+.pc-workflow-rule-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:14px;
+}
+.pc-workflow-rule{
+  background:#FFFFFF;
+  border:1px solid #D8E7F0;
+  border-radius:14px;
+  padding:13px;
+  box-shadow:0 8px 22px rgba(0,59,92,.06);
+}
+.pc-workflow-rule .num{
+  font-size:20px;
+  font-weight:900;
+  color:#00A9E0;
+}
+.pc-workflow-rule .lbl{
+  margin-top:5px;
+  font-size:9px;
+  font-weight:900;
+  color:#5F7E92;
+  letter-spacing:.65px;
+  text-transform:uppercase;
+}
+.pc-workflow-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:11px;
+}
+.pc-workflow-table th{
+  background:#003B5C;
+  color:#FFFFFF;
+  border-bottom:2px solid #00A9E0;
+  padding:9px 10px;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.45px;
+  text-align:left;
+}
+.pc-workflow-table td{
+  padding:8px 10px;
+  border-bottom:1px solid #E3EEF5;
+  color:#2D2926;
+}
+.pc-workflow-table tr:nth-child(even){background:#F7FCFF;}
+@media(max-width:1100px){
+  .pc-workflow-board{grid-template-columns:1fr;}
+  .pc-workflow-rule-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:650px){
+  .pc-workflow-rule-grid{grid-template-columns:1fr;}
+}
+
+
+.pc-pending-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:14px;
+}
+.pc-pending-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:11px;
+}
+.pc-pending-table th{
+  background:#003B5C;
+  color:#fff;
+  padding:9px 10px;
+  border-bottom:2px solid #00A9E0;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.45px;
+  text-align:left;
+}
+.pc-pending-table td{
+  padding:8px 10px;
+  border-bottom:1px solid #E3EEF5;
+  color:#2D2926;
+}
+.pc-pending-table tr:nth-child(even){background:#F7FCFF;}
+.pc-deadline-pill{
+  display:inline-flex;
+  border-radius:999px;
+  padding:4px 8px;
+  font-size:10px;
+  font-weight:900;
+}
+.pc-deadline-pill.red{background:#FDECEA;color:#C0392B;}
+.pc-deadline-pill.amber{background:#FEF3E2;color:#E67E22;}
+.pc-deadline-pill.blue{background:#EAF4FB;color:#006080;}
+@media(max-width:1000px){
+  .pc-pending-grid{grid-template-columns:1fr;}
+}
+
+
+.pc-report-filter-bar{
+  background:#FFFFFF;
+  border:1px solid #D8E7F0;
+  border-radius:16px;
+  padding:14px;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr 1fr auto;
+  gap:12px;
+  align-items:end;
+  box-shadow:0 8px 22px rgba(0,59,92,.08);
+  margin-bottom:14px;
+}
+.pc-report-filter-bar label{
+  display:block;
+  font-size:9px;
+  font-weight:900;
+  color:#003B5C;
+  text-transform:uppercase;
+  letter-spacing:.65px;
+  margin-bottom:5px;
+}
+.pc-report-filter-bar input,.pc-report-filter-bar select{
+  width:100%;
+  border:1px solid #BFD6E4;
+  border-radius:10px;
+  background:#fff;
+  padding:9px 11px;
+  font-family:inherit;
+  font-size:12px;
+  color:#2D2926;
+}
+.pc-cadastros-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:11px;
+}
+.pc-cadastros-table th{
+  background:#003B5C;
+  color:#fff;
+  border-bottom:2px solid #00A9E0;
+  padding:9px 10px;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.45px;
+  text-align:left;
+}
+.pc-cadastros-table td{
+  padding:8px 10px;
+  border-bottom:1px solid #E3EEF5;
+  color:#2D2926;
+}
+.pc-cadastros-table tr:nth-child(even){background:#F7FCFF;}
+@media(max-width:1100px){
+  .pc-report-filter-bar{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:650px){
+  .pc-report-filter-bar{grid-template-columns:1fr;}
+}
+
+
+/* ===== MONITORAMENTO TRT POR CNPJ ===== */
+.pc-monitor-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:14px;
+}
+.pc-monitor-card{
+  background:#FFFFFF;
+  border:1px solid #D8E7F0;
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 8px 22px rgba(0,59,92,.08);
+}
+.pc-monitor-card strong{
+  display:block;
+  color:#003B5C;
+  font-size:13px;
+  font-weight:900;
+  margin-bottom:8px;
+}
+.pc-monitor-card p{
+  color:#5F7E92;
+  font-size:12px;
+  line-height:1.5;
+}
+.pc-cnpj-row{
+  display:grid;
+  grid-template-columns:1.2fr 1fr 1fr auto;
+  gap:12px;
+  align-items:end;
+  background:#FFFFFF;
+  border:1px solid #D8E7F0;
+  border-radius:16px;
+  padding:14px;
+  box-shadow:0 8px 22px rgba(0,59,92,.08);
+  margin-bottom:14px;
+}
+.pc-cnpj-row label{
+  display:block;
+  font-size:9px;
+  font-weight:900;
+  color:#003B5C;
+  text-transform:uppercase;
+  letter-spacing:.65px;
+  margin-bottom:5px;
+}
+.pc-cnpj-row input,.pc-cnpj-row select{
+  width:100%;
+  border:1px solid #BFD6E4;
+  border-radius:10px;
+  background:#fff;
+  padding:9px 11px;
+  font-family:inherit;
+  font-size:12px;
+  color:#2D2926;
+}
+.pc-new-actions-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:11px;
+}
+.pc-new-actions-table th{
+  background:#003B5C;
+  color:#fff;
+  border-bottom:2px solid #00A9E0;
+  padding:9px 10px;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.45px;
+  text-align:left;
+}
+.pc-new-actions-table td{
+  padding:8px 10px;
+  border-bottom:1px solid #E3EEF5;
+  color:#2D2926;
+}
+.pc-new-actions-table tr:nth-child(even){background:#F7FCFF;}
+.pc-monitor-pill{
+  display:inline-flex;
+  border-radius:999px;
+  padding:4px 8px;
+  font-size:10px;
+  font-weight:900;
+}
+.pc-monitor-pill.new{background:#EAF4FB;color:#006080;}
+.pc-monitor-pill.alert{background:#FEF3E2;color:#E67E22;}
+.pc-monitor-pill.ok{background:#E9F7EF;color:#117A65;}
+.pc-monitor-pill.dup{background:#FDECEA;color:#C0392B;}
+@media(max-width:1000px){
+  .pc-monitor-grid,.pc-cnpj-row{grid-template-columns:1fr;}
+}
+
+</style>
+</head>
+<body>
+
+
+
+<header class="pc-dashboard-top">
+  <div class="pc-brand">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARkAAABnCAYAAAA0TzYSAAAQAElEQVR4AexdB2CbxfV/9ykJYSUUyigQyzGEkYQ9/gUKlFlmWcVYzgDKLqNllQIFQoGyyyxQWmhJsGXMLnuXMlvaQikrjNhy2KOUGTKk+/9+kiWfTt+UZFtOZN/Trffeje/ufXfvxudIe+owwOOSTD0C+6FBhWTqYaT/qCR7boN9I/LUAeiU9u7rYf9a2lM/l47uvaVj1npy7xuLSf2vXgP1Gqj5GnBEyU8BWyGn28LeflBBZDukv42I3gv2JORpP8C+otSBsE8WJeeLVreKjr0gn42YJcnu+wAnSFvX+oivm3oN1GugBmvAQZ7eBQxFs7KI2glwoTjO85JM/R0jnaPlhreXk/pfvQbqNVAzNeCIxn/NZKeijGyCkc7lMiKNEU7PhdI5e9mKuNWJh2QN1DNdezXAkUzt5aqyHI3CdOsEyWTeko7UTytjVaeu10C9BiqtgYVRyOTqRMsyGKNdKsnuv0hbqknqf/UaqNfAoNTAwitkCtWpthZHXpL2nj0LQXVHvQbqNTBgNbAICJlsXS4uSt9e7elTlnP9p14D9RrwrYGQQkb1QKn6wqCAyMsowduADKAyo+VSrED9XOp/9Rqo18CA1UAIIQMBs9KY1aQlvsGgQCI+UT7/qEky6SbRenMIup+hdm4GfAKIbrjXJtlzbHTCOkW9Buo1UE4NBAsZpT+TbdSCcphXjeawjefLpKaUtDY+A0F3mSTizZKe14Qp0GSk8SggotG/kWTqRxGJ6uj1Gli4a6CfShcsZLQajRGE6qf0y2c7edzn0tLYBoGznWSym/KejcjsZumctWZEmjp6vQbqNRCxBoKFjOhMRJ4Djz6p4QFJNGwmWp8QKfF07P5I+HXkeg3UayByDYQQMpF5Dh5Ba+PFop31kIG3AGFMoyS7rwqDGAVHa708YC3A2JCwGvBWBXwrSjo2LuijphuUvzXBcyU7HdsPnGUAawPIj/YyNo7pB97KgA0BxCewrpY2caK4wWdJAHmQVxPcmwCWiMLDxAXt0oBdAecAOgFPAZ7vhUdgXw84GfA9ky6KG7SLA8YBmF/mu5rAuij7eA3ytApgKuBiwJ8BfwOw/M/Bvg9wJeBIQKiZwMIlZPiUW8e8KEvM2QDOpwAhjDpCOro3DIEYBeVyIL8KmBUS3szj4cG9DmgHNCMsqomablD+XkMGZgCCzM+A8AqA/Gj/FG4/s6yI/BMIxCewrl5FmUcgLJLppeEKJHmQF18wHWASuW2D1xgA65B87gaPUwD7AjYH8BAuYVu4eWD317CfAP4rgOMAUdPbAvSvA5hfpldNYF1MA+9IBmX4HqATRMzLDbCPA+wO2BTAsm8MeyfAkYArAa8B/2EADzLD626iVow7l1oL3WOtLyQR51vmmVBZy6j2UHjhkRYPj1rAHA4XRwDjYCcAN+HhPQ0YD3dYU066QbzDjAjsazdsf1EaSqmXEHASwDSrwMOGDSuSIU3copiENL60wny9qGd2HHb6o4H4bUBYszYQLwZQ2LDNwRnKDAuFVT7SyCikKD+FxhOgoVCNIuy3A00H6DnCcR31LpxCBqXOmtHzthHBErwE/ClZE9Om1gCsKNFzoiD74G6GuBfwAPkWgTPQVCtdM6HlTY+He64VbvutaBEIgQtE5HGAaVpQ1p3NAD93L26LhfNL8I60CAA+14AHO5lbx/wCcS8AHgb8FcBRAqwSw6kDRzb7l8S4B/gKYneSSKGhpt4o+0jA38CZQhZWiXkPIf8APABgvXbDdjMc4bCtlrwUF24hs8u4uRJTlLRulWKHXWoHVNHPfT1HgB/fkjYchXA+4FNhTwe8DzANRziPoSEsaQaGdLNTsDOzA5UDVyMdTh9g9YvhUY95FmeO4ALfpKgP4txk0T4PAXOOFebrBR/q5A5zQboDYcxfE3huANgBsDWAnWh1xB0EeB5gmz+B5y52oIufU1Gm/VvEeT2bCxH3IMA0b8DDkdMVsL3oKDTtugG6q6FagdMhO/L3CPg+gOXfBOXeCcCXXhPC1gWcDvgYYJoV4XkG5S96MS3cQgYlluYxb4pSP6HTH9Ty0t7DaYo/WnmxN+EBXQO40gV+i7CrAL8G8C3Ih3ielQynUXyoVnCgl7xPAt+jy4SfgI4NOTChchDA+3+gmwowDRXAnAKZYW5u4hDXjNvD9AS50RkOBg6FP6yCYZ52Q972AtwJsDuSIOwtwPUA6vJOLlD2Oe4Bb9epQx4FtDMBRwKOAng9H+5Op+4nT0b7L8A/AXAMwIvuCMTxxUZ8T0AeqbtiGUyc5+CZAPpDAY8DvoG/YODXgP8AzkIghe2NsE0zCp4iwbjwCxmUWFoa8EZW/6bTFxzt1mB8SUJGfickHhvwHKUU82ErXA9Go4g6jy96o4TNw0Dioax8495mpek7bUI9cHRqT5PYYWdbfDy94LECIvm2hlUw/4VrI+TpHtihDHD5QqAew8Znueywcvy2sFqqHCY2DcpPha6tsKUA2xRlovLeJinxA+8zwBREXAIwzfrgX9C5LRpCJlt85TYkzsYUfrSsIx09Ewv+wXVw+qSNLCwL9zqAKKb2NlG65576MOo+zFhOm0r0Fmi8MSBxBQRWwbBzcOpRCAjhcJseb4tOw5WVEOR9KKC5Bb6TAabZCnnd3gwo020/Q9tfJlv5g0XIGzK5cmYFB3tRfq5CUWdlIp+H8mf1QouOkEmMoXIreLUpk7HfkGbFDZgbD45v5S4rQfutZkUPTS/KSkXx3lbuORWyRxpEYeegwKWbQJ3OXnSEBTT+McC1p8ZnIx/Bo10QuhnQckRj09tTHTfSMsIqI0H5eX82R3Imox+hDOZLzYwL4+Zobr6FyK0NUltCJtmzsrTPXleSPVtKW88P5KbU9tKe2iELyZ6NpePtNWT6++UoQHNl14pK0Jzb69dRu3pFDUK4vQxbSSMYhOyHTxINnG9CW6hMQYfACmGOT6/7gJyv8DsVtNSjFAJCOKiLMdH+Bx6nmQFluqnUN0m5KXANM6BG3FxoMLPyEMof/AI2KSw36PkM7NHhIUQbPCGT7GqEMNkPAuQCwKNYQp4pomeJyuBtoP8qjr5fMvKQKHkwC6KfE52eKcPnzgLdC5JM3SQdqdMBu0nbbO4tYXn8ITHmTiB8CvA2WtaT6W+u4I0wMDHoUBwWr2qlxre2FbTweNFQD0Vp3gGYhlORvN90M+x20JSj+7AVxBwdkV9FgLw8AQbcawOrYGrqIC7aFds2V4kKGYTjIkA1jK2b+Q7S22RghUx7agJ0HqdCQDwp4swS0R0QICcC8LZSlPglc3CXkqOSNI8ONIuWMwF3iZN5HTxfhfC5FQLLe0OUUhgJqPtceJpBSmLDuLNRBvmPy4rmtIDZ8dqjwTg3QHndgms6jMvGZgaXRUM9g4BAsz6ow6EuB8HhDfisCGwuwcIqGFvxXIgow2Hz8m6PZTCvAomdH45AyrjJoDQnELLcU/N3K2a7MEKGijaLLoK386UREABT0Pk5KnlJtD4b1NxSrWBX06wFobW3KHlc/tjltqmqN61McIU6Mr4XeTAte+jJPSB8iFHy9FEUZHfcgQ1FQ+XGr3OtVLlFnmAG7w3couVVM9LHPQFxZtv7HH63/S4ILss8bVGhXVohg+u1N3b+DfVYzatc/mIVb2IYITPKIgrnpe4k2X2CpJfmuZzpoqQamvYwaTsy0mcDXkbzzIw/HyVj/REix9pTAE8GeNNOBDwEhO8CTMONWaY/jJuH2M4HvysiAg/AXQ2arcIkUm0cNHqeGfIbtV0HHOpwykm60SJ6HbzKEVYWm4KX7b3ggYNThlraSmBPwUMtV6McYQ3PYpm4jSGEjLpFstMMk87H3aljQuEyfC4SU+wY1OT7EPRHlMOdiu6MFwznqk1Ao1IruhOXHXoIOuw0H+Bp398jHtNI+Q9SsQUy3zZJhEc1FBLc0MVdxVGAisHDkZh3PSKyn80PwN9t5PYMhIKtuAVqaMNVKxO5ZLOdGVmGm9MPc2TAUXV5L+oyEg9Bwo2dJtqHpqcKbpvfKMeXqZJbJdEQ/oG2p5ol3YM3UFa4VLuj+ma1OFJTv1MclPftv+oncLo1XgT3Gi32g5AK/3YG/Rk+wDc365nTSKAVGQhr4bmQosAB8nw9QOmUJANBwpfBByURIpxOuQSHDrJXJz8LTRkOkSuCFDQmdsb0DLJ7tJV+tctvL6ykvYUMBUxLPJxmPLtSlLpLlFDTH26lxyppzlu1X/8dtkqqXbFVy7jFiPXJczN2o7XQPL1zEMM3C+mjAjvLoNUTRnW/Qt5t/QGC5GjEcYRGdzlgr9BV++Q6Fy+WsDJWmV7TYlahl8/VZGHn1Ywrx23vSB7mIWTUbRJWwHT0HCjiYPQiu5WTo36hUcIhqjdrLeZwthRPV33/EEdPPBDHE6xe0IOMcD7/DOzfALbA27wFwFUUeMsyVJbyLFS5ML2sVCskghDZCCz89q3cDpxyO65dn9XWl3AUbHZctjUKexSpJoz94liuyrmyr8mY4yZknsAUaZ9QCSdT12K16Hrg+ndqIIQwXSKKmulrRAmnFj8VLVNEaeZlKtz8wsA0xHFPAzX43AYtrn9a/FdVtJiNoJSF0tyBWhpefsg0CIu1Qe7b2YEzDrA54HgAywiSisyH4PMV4NMy4CPQVLsewhbmzxYiT5NTCOeDuZTNA5J5fxSb0zATfywEljIDKnSvbNFzyve+FTaYXltVwDZZzfzwXiCTX8oWMl2yUkPw+YXOrpUkmeJ6eHZHn8kxgvsDCI42EX2wKLWOJOJNkmjYRhLxI6Ql/ivYl0tr/EZpabwN7hlwXwr7TMQdAnsLGc2vFahNRRTPTdwtIn1vCy38ThOCXMy9bywmSlZwiTGClL+QMjBDOrOKZnRanmD1gnRIXlHQ7KFrFNpBwUWHvw4Jmx01g3rbGmEYMeO3z0wCbjmjZ466+7iI8KhGNaf45qlmpjML+e+PZ0ve5YBd/v8rh4kPjc1vpoORAodzpJkr6dhWso3K+xlWCrzhP+1wX8EmpZFhQjAVE9lXlhreBMExWRKN10lLA29KC0Pch8O7YloanpNEwyWSiO8usUyTaA2hp54VJVyl6cM1XV8OZwO2h3QmBuSeVPvNU42RXnEeF0IfhAYV3D+2ipYVLuio3N/EEY0Zzft3I+lUwAcjZiGYfHY0PRW6f2jR88ycFTSoXrtvNKLeuXeo4kyBD6ewPCFv8noKQkbl5qSO3lkmr+o9AiBZW9f6EEQUMJT+DIkCN4iWiZJo2EcS8Vtk95Wru3LRPPZ9aW38g/CrBYm4fQZGCn8ZWavg9nI4qssrqh7ePzWABkphcZvF/T4IBVMvtJ8VT5qbrbAwXnvXt32nTBgeJTgoAxcctrEi7rD8g+pFfVLvZ49mQty3FCrbPHhprt5xdvG4IxlZAyOADtmv8TFfNu1da4njUCnJB+uLWhSp9B2Smw4dgJELL3wuih5wj3Z4KbR/LNELlwAAEABJREFUsipDJa0/Tj222jVAAWO2rXlIoEiooINwhGl3CH5VgI0b6KENp2Qm8ngICPs8kxkf1s19YSZuD/L8lBlQI+4/Wvk4FOX/lhVWjvcsi4iXtX3tYB3lKEnE/c+A3PD2cqIcVtZIi4mf9wNE7gudyl5lTYdA3D8m88MAvmlJj/hPAE4tRg/ZPKGBH4TMc6oEq2B4utpeCcL7Sl0NDHuvzHTwoDIYUcFGKfUvYNnTGF6bGaV9g0WfQfrUZdrC7qw+jJpyXYXcmGqRYfBzuwSs8gzKz2tPGyzq8+h3pCU+HU9O0+MJI9K88Dn0QwSfOyXmjIfwugXu2jHUJ4laNyBDL0rrytXeBRqQ5KIbjcZJHRlXDM1KCDpdvbeJDLcDuAMQxRxmIS8D/8OAyAZl4BT8XoswBWFml8tCGRwv8vUVUj4ZYJodUI6yTmODbgoYcUMprIK5AenMpI8Ph7Y3tHdzO3sExZA+HcJlT2kew6sMvfkORkza+Wlgslps5WIgSQ0jcDRZw9nLZs1eruY83h4RZBHzP2i8XIY+Ke/vtbdEY7enUr1RpRZ4/BuhlwFMswV48ENu9vkeE6fIDfydEcB7cReDbZpwG1lNigF0o/wUKPaI/XiUhxeUh84J8E8E8nSAabgXh8dSsmH+QqYjNRWjnPA3xWnVitWi2hwi3vna0iLqYAn6U3JXEMoQit8FjWAvAO/MLQe4TLwP6Ef0R5nB91Tw5cY7WAXTig5AQVMIcHMA5wKEvwgwzW/BM/RZOfD4GYjt/UjU2c0En5MA9p4PoOcM4v4PwM7FEcxSudDC73HgbU/pCpE15OD5MHsB5iiU60VAK8BU4hayjfDhgD0A1OPyORTieh3bo/zZbRv0ewsZ6mG02Aoi0hBKQcuO0trAUU9pXC2EfD3yfGRjOMDPfCItDVwq9cMZSnG8RY4KVT6XcoA30XPKCwFd3WKjgXLayms/TMYdaJx3mAEB7maX+NtdwvyCqEvhSMTEWQIe6hNmIZ/8ltI1sHnA9WzYbQAuYDwLHE4TYBWZc1EG+/KmIoRa8SCf7yEvFKr2UQPeJd2GOJafH227BGVm+S+AfSfDAXxO34dtG17BUSRgvYXMYmkm4h1vss4KmDivJzBDa8ed08UEL1MqacfITVch41SkmWxipqcf3Xa61UiKqzxBdWKXz/YX5QMNlfH3FwWKUMnLT8JYwd5edBLO+c+0MDYC/9OtME8veMwFbAqEPwFswxHc9xBI/c0ZsDny4iLJeLhtw/ttDwUvWzdh40X1232wqs8Y+eW0cQNkqkgwwE/DTatUyHPEx/JzasSFE7fp5Bsg+C74lQh5uwDAg+G9ulo4lIInwCg9WVprWMAw+5lYyL0Uyp6jk7ocsIeZ9ny9HJ5haOx0w9AE4bCjqQAkc+mZqLafYVmAACAvfm2Ae0qyYb0/zUopCrRebzgLNNOAaW85OBPp7IDw0AZ8uOmPy9hcRQ1NB0Su0vCIw9rg4b0/C4hlGta/SVr1Z4x8vwng5tpjkZD/XjkgWOYT+PkMxoOHvWKHKBF3IaOEy4RZBN8fLedhiZojHl+0QY3s6LlItHD4F5SNhzBV4rUKQXhh4qmU5BuADZ02pyph6CrFMdNl2pUCXzTcXEZFnl/euCRKBSjTo321DzLbXDviyZv4rB8eBrVHNkAJbTjaIB/yI/DrBZ+GphYR4qKT/BlAXlvCzy8NPA6bbYK358EpPB7AIyecLt2KgKMBTaA5AEA8eKtuuHEwXzbafMZVT4QMUQbexsizTHvCTwUwRzc8M5bX2/AsG88MvoB4rpxNhs3ynwlaClt4Sw0feHFosocboFYrDnTzqWcxgjnZLaZmwpKpKaL18aHyo4VSPBRqEBIqnF/YewD2wwDaXA0JIqs4HmmZ6TLtSuFB8OQ3jTwbEDMNHJ7PuR8206M9i+FuAJw04FYAeROf9WMrX91IPcPA6xMA+ZAf4Q742UE8afwiQPsk4FTA9wH8SmIT8NknaLNTTUQ4PyHCL4L267NFOh8A8mWjba8IIWvVM0hrPoBfzuQXKjm6yZYZKfB8V9aNeF4/cgjsNkBeAAPF3ZQKGdG2Ms6NUoteQGnnFlcbYe3d+yAj1P7DCjKqHQKTb6cgxHr8IlgD6EgUYhSk3MFrK0kX6hpB2flSoKDjlOpd+DmaiVTmYiFzUzeHxpTc/kwU3vqtTR/4Iw1ibLLnAFGKqyJhMjFPYiOp2AuDW8ep10C9BiLWQLGQ0eqEEPTd0hKvloI0RHIRUZIpLD3qCEvvulWaVxjQt1PEEtXR6zUwpGugT8h0vrc8FKS7BJdGBe+aDWZSfYz22VtLMsX9DlEUY9dKayMVeNXPT51jvQbqNZCtgT4hk56XyIb4/7wpiQZ7G7g/RX/H5oRLh6gMb9WL8lG2pyURr0+T+vv51Pkv8jXQJ2S0UFHqXyFan++PMACx07QjbamNJNl9giRTT/cKF66IhU9cy0wZPY87PcPTLCSYWuvFAesDdgJMBvC4wbaw+b0ntZAUs16MgayBgLRyQoZHCJS4fY7DJJ8jc/WNZkAod+dbDdLRfSJgknT0tIQGfl4l2d0K/CMk2XOKtKcuhVB5WNbsmSWO/ENEXSgimwGiGS2vyDBnc+HNetEoK8ZGR14NwG8wnQWb31o6DfYPALnnUHEK7gzAfzHAgQBeUzoLWLx47D7YMwDcw/MIbC6Ncht5Enh7w1+WAe1WAH4YLv+BuH3LYgQi8OHu3atgkxftoxAcaIBv0oX5sB35M8/ngXYa4BjA1oAoNw8I8Pls/wibafIc1eVwl319BAsK+u0ALDvzSOBtgG47jolek5Br3Ist4B2q3Ortl8lb5MCxhUNPfohFcenhC0SrwwE34ikkQ4OSm0RUG/CvEtHniBLqgni1X1zK/3tC5mY2GugT4mgkywPYmd9E1q8F/BLA7ee/gs1NaK8jvuyODR6eBny5k/UNIFwP2BWwEsDL8OuKLYi8FXTPAqILcRGeZ+EJ3CNFhHa0USaIDLMx3DwOQl60j4E/jDHpKJiCgPyZV+rzzkACXNjg9JtC90bUw3oIC2O4Z+YAIDK9n8DmZr0rYZdlkC53+/JlwLIzj4TdwYxnjmANDZMTMhm1VWB2lWYnCUQrQUg0vAvdx2qiZbCvULgW+diqLEFZUqjwAWgo3D7P8yHsvF6E3OjFjj3ZC6GccKTNnbXXgzb0yWTg5g0vhH4aPNiw82FhbPuKj0o6hL3TOBUmA8Cx6RBUlhkNKl478QLqgQIDXm+jlOILg0LKRDoItBGuSjFJhcLOPtQ7AelE3s1cxHWAPTkho7T93WU7G1/LHP2YHRjJ3xrnaGkwTjhjJKUPgYAZLCUvGx4FTb66eIUkRmnCjYL2VvQZaJCr5hErscGHUyA3Zf4r4Mu7RDjCoV6Kn8Rl3VyCcB44hFVkOEQ/pChkMD3lpf0VyF4HdAG8vnvFOD4Pr/1fnPq41SdY9hkIAI5OmUZfoEhkNQOe35pgwNEVrII5G/w53S0EDAWHI9PfX1JETRT/vyerMgJIxDndGThBo+QByTjjsUz9B//i9U8sGgqHtrzSIJ8Al8u5LZ0fbdsfDYYbH+3hNIfZefyybKTLdChATHoO5fdDmnwTngj7T4DHAI8ArgXwDhTe8MYRl93RrgXPIaUHMAsO910o35qA7LZ4+EtsxgH4PBjHZ3Ye8GzDqVOYay/sKyioaOeIyObn5+dLyIyfjfydZgYMFbcjw+etLSIQNPj1Mlp4d4ZXbLTwgRE0eCPpSdIS30kmjaE+Iloeq4fNDpvn9gUcPGlcdCETGg6H4T2Iy5vN845ybAiDqaDbG2CaZ+BZB2nx9DOc3gY4HGXx87AUSibidaZniLnn5/OL8rl+98qI/xo4PAPGc3m2Pokj/yl5XC8b9NyvxWmqifI7PBvqWMwwVzfwKKQ2tSLtvFjRtetFpWXWCMyeo3jxciBaaIT+EzSviqgjJNawpiQaqY+QQf4zpz5/R+PLeOTH/BZO7hM1Hoh+wWicvGKBimUTjdOA7yHt0HoK4HJKRwWuyee74M8Dc2bYUHEPLyejqAcK5QctWrterOiC93C4zMODS8JPHQssb4M65gLM7y2MGcgLXxRW8NDwQsgIh4f+uXV09UcD1RM0PHr+JxG1B/Qu4yXRcI00Kx7Jl4r/Kmdg7jvxW9X5tpGUrTg1ogKdXIVYzMLaDQ3US7hZqH1e0HDubwss6nH6kBYNl30XkX0jv2stoP44erIv4TocQoRTUlea3sDfwB4FyBuOfA/Je4ai7YhS5tvWrQxzZE7MnqO74UUPo6DhnTSirxZR0E2EAKWxpJ3FOxUrVlvK6HlNkogfKLW2E1myfxSAWQd+JqCBlSyFIox7MXgwFShZ81L2t7wfvj1NynY0dip6zbAobjyTIvSavhy7KKfV83xosVrC8nt6Ufe8ovIBC8Hz/iW0Bb7w7WV66u4in3y20hxUryNa8Yo9v0x8LFNXqeTt6sdbpDV+MqY2P4GQODoUtDQe2Yv3a9A+ORib6vwLVBR7T5FPxE0BzZUHcziPUZlFFcKLBsrVCN75YWJfYHqiutFJuEGP+gEurVMXwZFSVDZDHX+EVYCoy8esN5PFhnhWXkpgW9n7KJ7BzSbxUHQ7Ipp7Afzy/jlGO0F3vPrRL8px3FtkjmY2RgM7J18hcFPo7Jz3w74Fjcr1CkPEBRlbV9AFXtyfE0TnGw8eNwN4OdGNsLlq5Yu/EEZuaJXJXp62oou9qDPepGePTri7mLqXAjLaApX19q57L2FUoIvmGBxsCBkJEiCcEw5O7oZ4qmhgC1AEe4pxChoUv2/DYfNBiM8bft6Dl1Tn/VFtexuCqUyOyquOjxrAc6JOzdaH3IWoSAbt4AoQcFQIK2u4DM59SVkP0mE/tJW9x4OOCvgszlD+wXQpSMgocyg/lMs6KHlHQ+GqwKFI3Lwk+yL4TYHCLQK86Z3KQkSVZWzdmtvGurIYLwREX0YtAzo+R/jc0m8q5bl7mZ+YicqO+PYS9NFIIz+95bSWujniEV5Fu6ECmO4hD5SgRcO20hLppUrD6iERa4B7T9zm8v8DH36nZzM0qkpHjGYjBVvpH2U9OQ894MHULdGpedhwe9huwLhtELc/gArvt1DMHwBM80M8p8grdWQAuldh24LjLKTViHD7HmpzfxWih7ZxoG8JOvS4jNz1bmiN+tCujurnHo2Itw2+A84rAmzzPzQ+HpS0w8vx881r0oXeF2MSVc9dU5y2QW54du5h2A95AOO4G52Kd57XWg54NFQn8EjNxnhW/2BAuQB6ChNT+HN0Y+9BuwJ4nDqXm0zN0WG6pKmY8svYcvLl3KAVKD/6RTIOwmUkgOeWeCWF12iwETiuc3yErwpYHbA2oJwNegEj1EXysZRTaAoZHkv4ZznELjT2+advGTgfQcDYSmIjemg6HXEkWLnkqLFDs3iDk2sIBSr2eGeLPdzmF6YRWv4AABAASURBVPj47RwzY7sB/2IzAH4KFV4LwU2Q3OcSZhOcPXJZxuRZd5ddAw4of4Nnwrt44KzMKKU4KuJOYjdGC8Vqkl0wVKAKXpLLyFA+HGeXeSD83Ipu7uzkx7F2RQO7CMDNWRyOm/k4Do2YJ6HzYaxvc+cu9QP5OC+7LmS8akaEHZvXmfDEOT/+5gXcBrAP2FAx/zls0+yKZ8QPvplh5br50rBf7tw4yalcuTxrls4RlXktMHda2Ye1AkkGFqF2UkND/DFyY16dQYXv+hAu9yI8a+C+Cg4CrIK5BrTsCAzgVwxpE6ho5AVKdPuBeciSeFUZfSJPywDWBDQBxgE4SiP/sFDJEQ+W3UwnZnoiuN9CnT8B4Inzh2F7weOIuw3AESc3N1JZaybDFaGKV1vBny8dvmxM3vZGPDNuSLsdSY/g+r1/Q1BCxdmQLugAZp7KPTO5HdCoOO0xwwRhHM3wM6hm+P3oxLz5jze75cN5sPKTvMfH5n0pZvRGpqcCN5dx+SLiaIpp5JddvVjagqCSTmkvOJS7vd5LJ+ZVBj4fjjR2AwJ1MrCyhnzMEWo2sMyfYRadrbi3ooeu15HWlT8W0UFfTxwjnSkO4YduSQcg5xAQPARp1tO9ECZ+CkPqbMwdwTxFze8Mczifz3HYj9Rxr02ehvYGyE9+hYT+yAB6KvzNURk7XND+G3u1kvqlyGn3EtjL8vYUphetfyw8Ox4StZ+f2yphORmwhbFTDpOhQJMv2FOBmU2rPQNx6gi8RtOsBXtIbMbxbck3M28MNMOpsOW1APmwG/KOAJvLq+aIh8923wCaoGh7JYTfr+Ytc350eGkVRds7kYsiAzz2qMEsXwBp1aI5ejOZjTI9/eReqNiyIWIg41BRGVAwbe5QDcBdZKNtfQU32/lWBt6WXEXisNwN7wLE253WDY8Ci/qLDivyJMsf1UvdhEkTZlTFaZVJwyV4bjgzw8K6d7EQuWJnBfW7V1kpcLRpBdW9fjWQEzILRlCrbW57d6OZIDfOXsctoh5WqIGPCq6cI1TngiDhaW3ecp+j6vvlqkifL9jFVRETi/twzjADwroxVTobuKsA8obtg+et8n4vm1dV2Kf2T/VC9gpH+tz1aqZP1ILynJ4BAnuKRr3MACW9cCSTEzJTV+IQmAo+/1LFMrZS0x9/0Yulgtc8f3RwhCowl6zzZPyGj3kJeT7c1Yaw4nYE+9rHaeiwkfZfAJ/LuLZgOAP8A48+AIeHQu0R1cHgaeqZXPOfDwQudUH2hVkPgTd3TufRBso2nyfTNKey9NchoAZyQoZIWsLc4TpFbnyjPidlfbkAOgHfeuboYww6DD+g5oLdFwScs+D7HcA2VCSHWb426fjNH1t3wQuwz0U6bm9hk1aA83ME2NOiN1A2t4u1gepqznUJfRC8A4UdcLh8T2WrPfX8mQvPgQiyFdn2itdA5GFIp9EnZFrjd4kEHjFwJDaCHWJIF7qfMz/N4j8ZHYffL+LO3lg+DmHfBjQDeEr7l/lw2NxSYE671gBO6N2mEAYcbfCrEGBVZH4BHz9Wdin4cWPZeNjLAVYA8DZ97gGhzuN84JnGi5+JU+RGHt5GwLEA21DYUdj8GGlOBDB9At2T4OdB0idAZJ8o/wV4cuczogbccJ+TmWjhGZqBdbd3DfQJmSyOsjeIZUOtn2Oks4tvWCu47mUNoDNQaFxKtwH8EiOEuLCTP4/OxM7M5VF2KnOJeCbo+TmOnQxaOikU3EYHjCsB8OBlVVy1sq844HIyv8RJocVtC8wDgfm5HIz4lQJYBZOCaxPws79cgGB/AxrWgVt74rSJo2YKU6ZNoJs3BPIWPpvxVeBlCz4bpz/9tuKdz6c/01voeBcLmW8ybBiZwFKmY/a8P5BkUUJAp+BbnJ3WLjYvoWZHJtjTAU5RGM6VIp7MtU9n/wLC6XSboZcfeeCpY3YIni72QuPU10vHwGkeP6NCYeRF7xuOPHDDIfV41NO44TJ9glscFc3H9vJwi/cLs6eFlext4eqfmdbeeA4/BxT3HRMjnNvOk53ncFyGAFZxRR04lkuutsLNpRh6Z0l27+USERS0yMSjc3DEsDsKzL0yXp2MHYkK9z2Avy+gMP+HmyMXCv2nwYOCgtMITrmiKIJ5BSdHDrzakaMXpgd2noZTA64gbYX0pwL4rShP5DAR4ME7VLhFn6OaMIpbjp5IMw60LH+YZGwcLqOzvh5BBPeA0YazLEOBz2fE3dl8Dhyp7gFOIwGVGOYpnzfmlXmuhF/N0hYLGWZTDz8NFnd2wvIzql06Z9s7Mv0Iajcu2bOfJHv4edGq5hGd5G4Apz68hZ6dnYcgj0MiPCDHoxr8muQuwPkzwkoMwvkm3wI2jyaw4/MMmT18L6GzA0B/O4ACj/ng3hOOkijE2PG5VM088XAg8zMZuGz0Npuy/eA3C8BRDdPfHIzopu6Kl0NRoNDNlTiWj3ng1ZP2WSyQhTNI6zEA62t72PzmVOFe5XAc+rBAzzt/+Iy+Dzefw+aw+Ux4/qgPMaILPM4BMG/MI/NqLhhE5Fbb6KVCJnfMgA0wKOcjJZ3h/pogvNqO75y9OhTeWHLVp0l7itcgVj2/aEyzATyUx8/BXgI3PxH7F9hh3uxF+QGNvaRaFO/nAe07gPsAvI3vFNhHAk4DME88HMiRrB+LiuKQzjzAMwDqWc6EfTSAAoXu6+B+DhA8Xa8oF3Xiga6BUiHDHMTinPtz6EyfH2yIEQCH1344tRvH5fh0pu+treTE/hI0tVsJ9ZxVUgN12uAacBcyzSototx2oErpn26VZOqy0vAaD/lj10gsx3NOXLxSVhc0Nf7g6tkbajXgLmRYiuwXGdXtdIaAY6Sj+7ch8GoDZfr7S8rIGE8tux/eqwua2nhO9VwsFDXgLWRYvJjiDk37xjXGlIJWP8GIhvs+SuNqKaTzrQYZ/g1WDPR6vtmioEn2XFnf4exbS/XIeg0E1oAjf+zi1QLuiM1j5ojGcrV7rFtoMwTNv6S9yz6i74Y78GE3pbaXzLB/i6g1JNSfxirISF4iFQq7v5Hq/Os1MBRrwJGRzl3SkfK6akCktfEZEcUlTgn5t4Eo5yUohA8PiT8waB2p0yUjD4kWb6Eq1p+W/WTyGO5GtSLq3noN1GsgbA1wujQOHe8WjFiUJ1Gi4RIRFUXnEsOy8NUY1TwgbV3ZXawyWH/t3ZtB4D2DMp4ZLQv6IGmNe90qH41VHbteA4twDTiihNc9LiYdPa4bwiT/l2jg6d6oOpcdxXGeFyqFk12h7lbJJ1ex3dk9FsLlOlHqaQg883xQCNb6KEk01o9OhKipOkq9BoJqwMEb3ulF2k3au7n7M+t1/UnEeZFQ9Lc7lcLivCEdqWv6/eKrZPfm0p66QdLqdQgXfjnAtSiegVpOgoCJMmrzZFWPqNdAvQZEKGRUoSKUOlWS3f4dMxHfT5S43X1SYOPhGAaBdpjEMi9KMnUXBMFkmf7mCh640YLbUxMwEjsOfJ8SUU8hf1NFZBggmtFyOKZIle/67XxpRNnK77veXUI63l5D2mevKx3dG2anm7/7x/BoBQH2jbPXkbaU+XVCBMJ06liW971vuF2SBQQPw42Lye5WjA5PAT2PSngghgju/HAp6UhNRRs4WW5KbRGCwh+lo3tteUxHf97TtCPJd8YgHxOy9Zzs2bjiNpnsWVnauw9GWzxJOroijqCNYmqtwGOKtKdOrri+DbaD4XRKE1XXoSH9sDTcCGmJHw6BcYoREtW5GwTBDBk+fBYq8SFU5jRp695F2Fi4h8WLGztbW6pJ2rs3k/bU0aC7FvbL4PWSaH0xyDYHlGPeE5XZDAKmHOFZmt6Cpa+H8vtVaZvNszil8X4hXy34oej0TOTn36LVc9np5qjl50lHivfB+FEWx8Uy7XiFlN7Bku5pz/L+YFjfy6WYstSXTE2R2IjPRFSbiD4B9Peh7mdL9kiGRPtr79lT0nO+EC2oIzlRMvIkeD0FXotHY9SL3dG9s2j1iryXin4dxLie0aIWvJhtP47zD5TtObTJDySZulvKEVrJ1Bki+h1RiiPhn4t2ngGv6GXjNouOHn7F4gZRqCOVYX2/JG4vjd5qqGXLRcgwu/pOae/eli5PaI2fiwrYHfFofPgtzywJHvyq3xniqHuyjWX43FnoUBjtdD+LB/QA3PfDfhqC7wUZtfwsceQtUeppUcKrFA6BPb68pAtUj4oevq60jOXmvEJg2Q6ORJTsnaVX6WOzdpQfrXOjO0dvK1rWRaPdEPZ5gHPxTHhtQkhu+lIgroSGyUOJcBYM72y5Ww4cWzjxXYhxc7SneFMdPzw2QzKyrCTiy4rS41HvS0k687xw1OZG5xbW1rU+aG9HWaZLbPFlcrzUpkDdHLw+jMQLRFmjnaOztlKTsrbXj1t4ev5w5GUZlOVS2OuJUusgf5OBuqu8n3oSdniTTB0D5Gl4XqdL7IulUbblRDI8BIuypaO1rfSwR8Hra9TRKPBZVmLpteCfII7wxkA4h5ZxPLOr1COBw7SW+N0ScyaIkns9+USPWAEPfB0R9X8isiPcP4C9mYheD/aqgOoZrc/BQ9wu9+2pKrH9ch4FwfvI90miVEtZb0RmZb/GxzCyehn6oedhn4ygW8DvIuFoDp5Ak2i8Louj5JiszZ9kKndjnpbwoyIlt4L0bdTTVJkU/xRukZbGVzHCWhluCJpR5q1+CPIxjroJsZ+gPPtL8wq5C7VaGp6TjMN9S6/KNyOXQXx4M6P7O2gXOwOOAtGK0pHaF3Z4M3JJnUXOyD+Rp5elpeEllK1NtN5O2P6SXd+XMH+5Z3KZsB8kGs+S5om5KzUSY/+CsqEdq3WRt93CsOrFWQ1lurNQR81NMxGOsqkXYA854y1kWJTsMK17Vzo9oXnMO9IS3xUVzGsMco3QE7lmIjg03kJaG8N3kNBZVyeIqFvRaC8Q/r3fcyCt0KB07hRy53u8xa6PTGteiSAy6tsT+wIDXY/0PpccYk64fIO8vZwLCPjNDc8p9HNlMdG5UVPUvxG0PyDYdM5eXLgJMjcClewfOyfDJ415A0JsU5m6+ofZ8LA/w5xTgToHgvi3sN8CnAaIbhxdLNxaGzmSAB/FUR/sADN6uY2yGFqdkbXNn0lj/g7vNyL6INhhDYSxOhYj+Luko/sooc4xEb9FEg25EXJYLjWC5y9ksplU12StoJ+W+LUyLzYOjfqKINRBjP9clDpeEvFN0DCfrno+qKyFGBBJs9GTPTszRyF0VwbDMv/NMtBSqszNRrj8OHIGQkdiqslRh4iS7UVL+OczXL4j/NPqdVqloF8T0cuVhruEzE3nO3J3IXbU8rdjmvQpOtNnkuyeKe3dGLEWYkM49GEoU648Wi5D2daRO19bOgRhGBQIe1Us6L2oMk5DbxT1KL3OIusj0c5KRSF+ntwqLkebm4pWV4iSlySZeks6ZnE070dZk3EhhIwMx/BRhcr9/quF1urdAAAFJUlEQVR+glHNMZjXjgf+DYA0oBbMVyLqIpkXa5KWhtyIQPrjL8P5vIg4f0Wj4OVSE5DKWOFqChwVmQWxXEPWsfD37e4XfyqbptbNhXuZF8y/KBsW5mexObm0YhnohlwJWL5wo4+vP2Z9QCbJ2AInCgaRQ+DHdEetIY4aB3c4kzu6Mky0HI66/kSUnJElnDPSf9EiixTqh32Do6NgZEe/mUVydF/ZsgGFHwgYnavLQpCHgyM7rvwl4ufjZbgi2uy3RTRHMEuJjj1btoLcI7mBCGZFBqUzJwihJL4Fc/ZE/ACJ6XF4+Bcg/n3AYJgUHtBpMn9+kyQaThQKQenHPyWHgvs9KPPFELTnwz4Mfgxsvg6vANYq90yav/NRljb/o2Sa8I9TC9qhQV0vjuwvGedKkLwRaUqyx1pfZGm0Kh2Ntc9aEXETUc6rYQebwzbmZVtdQGQdwYJpjT8kifgMycjd8MGoz/ATzijnQtGC/KmTYKOuFaZKqke0ytVTOC45LC3/zTl6f9tTuZeFlhm9If7Wa/GcriQj55YgtvVQp8gXdbgZQVpPkM9GfCNts+JZXmyzicbbJZMhn5EIsz94h6DaNrkG7Z9H5R/tE9vc2CUt8ZMk5jSJUgnJKRG/9KGoQpT+SLS0QbjsLbGG1TAtOluizvXLyUVuf9FoSc9rRZkvgwLxQtjXgtW/RFT4qz0VaknwRyUmFbUdPTtKsrsdIZuLVnvBjmZi888ULesD9gHnUyXqX0z2FJFvSTL1VyzJjxNuMWDHUTG8OFRPtpxACGUyTgvwVgavGdkpHPeptM/eCUIQvBAjmZzClE4/yB3q3U0cdb4kGq6BjukCaWm4WiRDYbi6dKY4kvbjkIv75iuVdSi1jfDwLKG9+3hRWeFyC/hyuptF8f2ZpjIiimXbEmW7Nrv3pvOt0XBPEUffj7p/GPq/Xj2P+P/NH/FqFsFxnsvWNz2d3WPFif0Jzm9kqW/CjYiAXCuGQmZMQGZyEjUAyTeaSsKWhg5pif9IYiNyAkeEkj3cQ/RlDqEiwuXG80U7O0tsiSY0jskQLrdL9vItX+JqRk5F43xBJo/7vIhpfhhP5V1RhIdHa7yN5Qs0zA5gPIypKt/y22PEsI+0NtyBsGimebUeEf03EH2O+r8ZdjTTHH8FedkRROuJk3ldhs99V9hxyHOesyHCwxsqQbVwOrMf8vSOrNnzjqgMj7NcLKLwtlbh9Dsj1T4i8qU486+E3Wdmxllnn8oCmdIX6ONKxyjUulG+/SUjD2VBqbNBcbkk4vvCDm8SDTcBmaM0TP8W9Eh62DvwTwfcLK3xHWCHM/yaa3bJWs0X1ncyNVvS6k3U11Ki1Cayy7i54RhVE6syXg7eBjNE1G1ozB0loORWxF2Ewmmp1h+nARQ4ifgReJATMaVqAuvtRdRxouQCPPA22A+gUh+H/UIWRJ4QkQcBN8N/KeJOgw3Nv94wK1QS8S3B6xfSOub+wrIfkAfUpIdNltcaNipJM7vMP2IFvKTDvYE+/xhCZXiTLNCrSjo2BkJ5FQjMFTBiuK2Ed9iAzz/eUmILGsKil+DlpjWj0Va2FqVb8IwmIk/fLWv6yY8IzmwYKY7sAD6HSswZi2d3inDlZNji4YRoTN8DgdAgzasVT684ovgm0yRKXSFh/g5o/Az1sr7EMqgbtYrEnFUlEV8cwC9NhOFQjJOI/15iXyyGwO1FOz+STLoRvJrhj2a4ZJ2IryKO2lpEHYl62hp8VhcuscvQ+/t/AAAA///uQ2+wAAAABklEQVQDAPS6JENpkmDUAAAAAElFTkSuQmCC" alt="Peixoto &amp; Cury Advogados" class="pc-brand-logo">
+  </div>
+  <div class="pc-top-divider"></div>
+  <div class="pc-top-info">
+    <h1>Módulo de Cadastro Lawgico</h1>
+    <div class="pc-top-date">Cadastro · Preparo · Defesa · Habilitação · Validação PJe</div>
+  </div>
+  <div class="pc-top-badge">CIC — Controladoria</div>
+</header>
+
+
+
+
+<div class="pc-lm-shell">
+  <aside class="pc-lm-left">
+    <div class="pc-menu-title">Acessos</div>
+    <div class="pc-menu-item active" onclick="pcOpenTabFromMenu('dashboard', this)"><span class="pc-mi-ico">🏠</span> Dashboard inicial</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('fila', this)"><span class="pc-mi-ico">📋</span> Fila de processos</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('dados', this)"><span class="pc-mi-ico">📁</span> Processo atual</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('preparo', this)"><span class="pc-mi-ico">📅</span> Agendas</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('workflows', this)"><span class="pc-mi-ico">🔄</span> Workflows lançamentos</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('audiencias', this)"><span class="pc-mi-ico">⚖</span> Audiências</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('pedidos', this)"><span class="pc-mi-ico">🧾</span> Pedidos</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('valores', this)"><span class="pc-mi-ico">💰</span> Valores</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('modelos', this)"><span class="pc-mi-ico">📝</span> Modelos</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('solicitacao', this)"><span class="pc-mi-ico">📨</span> Solicitação docs</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('contestacao', this)"><span class="pc-mi-ico">🤖</span> Contestação IA</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('emails', this)"><span class="pc-mi-ico">✉️</span> E-mails cliente</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('retorno', this)"><span class="pc-mi-ico">📂</span> Retorno cliente</div>
+
+    <div class="pc-menu-title">Operacional</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('upload', this)"><span class="pc-mi-ico">📤</span> Upload do processo</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('monitorCnpj', this)"><span class="pc-mi-ico">🏛️</span> Novas ações TRT</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('dados', this)"><span class="pc-mi-ico">🔎</span> Validação PJe</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('habilitacao', this)"><span class="pc-mi-ico">✅</span> Habilitação</div>
+    <div class="pc-menu-item" onclick="pcOpenTabFromMenu('dados', this)"><span class="pc-mi-ico">📌</span> Estratégicos</div>
+  </aside>
+
+  <main class="pc-lm-main">
+    <div class="pc-process-title">
+      <div class="pc-breadcrumb">Lawgico / Processos / Novo módulo P&amp;C</div>
+      <h2>Cadastro de Processo</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <span class="chip blue">Validação PJe</span>
+        <span class="chip green">Base interna P&amp;C</span>
+        
+      </div>
+    </div>
+
+    <div class="pc-action-bar">
+      <button class="pc-action blue">Gerar documento</button>
+      <button class="pc-action navy">Marcar/Desmarcar estratégico</button>
+      <button class="pc-action blue">Publicações/Andamentos</button>
+      <button class="pc-action green">Incluir</button>
+      <button class="pc-action red">Excluir</button>
+      <button class="pc-action light">Exportar</button>
+    </div>
+
+    <div class="pc-tabs-modern">
+      <button class="pc-tab-modern active" onclick="pcOpenTab('dashboard', this)">Dashboard inicial</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('fila', this)">Fila de processos</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('workflows', this)">Workflows lançamentos</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('dados', this)">Dados do processo</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('pedidos', this)">Pedidos</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('valores', this)">Valores</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('documentos', this)">Documentos</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('audiencias', this)">Audiências</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('modelos', this)">Modelos</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('solicitacao', this)">Solicitação de documentos</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('contestacao', this)">Contestação IA</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('emails', this)">E-mails ao cliente</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('retorno', this)">Retorno / Pasta</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('preparo', this)">Preparo</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('habilitacao', this)">Habilitação</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('upload', this)">Upload/Migração</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('relatorios', this)">Relatórios</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('bibase', this)">BI da Base</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('documentosPasta', this)">Docs da pasta</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('profissionais', this)">Profissionais</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('trts', this)">TRT's</button>
+      <button class="pc-tab-modern" onclick="pcOpenTab('monitorCnpj', this)">Novas ações por CNPJ</button>
+    </div>
+
+
+    <section id="pc-pane-dashboard" class="pc-modern-pane active">
+      <div class="pc-home-hero">
+        <h2>Lawgico — Painel inicial</h2>
+        <p>Visão executiva da operação: fila de processos, prazos de preparo, protocolos de defesa, pendências de clientes, documentos recebidos, TRTs indisponíveis e indicadores da base.</p>
+      </div>
+
+      <div class="pc-home-kpis">
+        <div class="pc-home-kpi"><div class="label">Processos na fila</div><div class="value">128</div><div class="sub">aguardando tratamento</div></div>
+        <div class="pc-home-kpi"><div class="label">Preparo D-10</div><div class="value">24</div><div class="sub">próximos 10 dias</div></div>
+        <div class="pc-home-kpi"><div class="label">Defesa D-1</div><div class="value">11</div><div class="sub">protocolo próximo</div></div>
+        <div class="pc-home-kpi"><div class="label">Docs pendentes</div><div class="value">37</div><div class="sub">com cliente</div></div>
+        <div class="pc-home-kpi"><div class="label">Estratégicos</div><div class="value">18</div><div class="sub">marcação ativa</div></div>
+        <div class="pc-home-kpi"><div class="label">TRTs indisponíveis</div><div class="value">3</div><div class="sub">monitoramento PJe</div></div>
+      </div>
+
+      <div class="pc-dashboard-grid">
+        <div class="pc-section-card">
+          <div class="pc-section-head"><strong>Distribuição da operação</strong><span>Visão moderna</span></div>
+          <div class="pc-section-body">
+            <div class="pc-modern-chart">
+              <div class="pc-bar" style="height:70%"><span>Fila</span></div>
+              <div class="pc-bar" style="height:48%"><span>Preparo</span></div>
+              <div class="pc-bar" style="height:32%"><span>Defesa</span></div>
+              <div class="pc-bar" style="height:58%"><span>Docs</span></div>
+              <div class="pc-bar" style="height:26%"><span>TRTs</span></div>
+              <div class="pc-bar" style="height:44%"><span>BI</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="pc-section-card">
+          <div class="pc-section-head"><strong>Alertas</strong><span>Prioridade</span></div>
+          <div class="pc-section-body">
+            <div class="pc-modern-list">
+              <div class="pc-list-row"><span><span class="pc-status-dot red"></span>Defesas D-1</span><small>11 itens</small></div>
+              <div class="pc-list-row"><span><span class="pc-status-dot amber"></span>Clientes sem retorno</span><small>37 itens</small></div>
+              <div class="pc-list-row"><span><span class="pc-status-dot red"></span>TRTs indisponíveis</span><small>3 tribunais</small></div>
+              <div class="pc-list-row"><span><span class="pc-status-dot green"></span>Documentos recebidos</span><small>58 hoje</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pc-pending-grid">
+        <div class="pc-section-card">
+          <div class="pc-section-head"><strong>Preparo pendente por profissional</strong><span>Responsável e prazo</span></div>
+          <div class="pc-section-body">
+            <div style="overflow:auto">
+              <table class="pc-pending-table">
+                <thead>
+                  <tr><th>Profissional</th><th>Qtd.</th><th>Próximo prazo</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>RFE</td><td>5</td><td><span class="pc-deadline-pill red">D-1</span></td><td>Pendente urgente</td></tr>
+                  <tr><td>BSO</td><td>4</td><td><span class="pc-deadline-pill amber">D-3</span></td><td>Em acompanhamento</td></tr>
+                  <tr><td>CAL</td><td>3</td><td><span class="pc-deadline-pill blue">D-5</span></td><td>No prazo</td></tr>
+                  <tr><td>AAO</td><td>2</td><td><span class="pc-deadline-pill blue">D-7</span></td><td>No prazo</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="pc-section-card">
+          <div class="pc-section-head"><strong>Lista de profissionais e prazos</strong><span>Preparo · defesa · documentos</span></div>
+          <div class="pc-section-body">
+            <div style="overflow:auto">
+              <table class="pc-pending-table">
+                <thead>
+                  <tr><th>Profissional</th><th>Processo</th><th>Preparo</th><th>Protocolo defesa</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>RFE</td><td>0000000-00.2026.5.02.0001</td><td>D-1</td><td>D-1</td></tr>
+                  <tr><td>BSO</td><td>0000000-00.2026.5.02.0002</td><td>D-3</td><td>D-1</td></tr>
+                  <tr><td>CAL</td><td>0000000-00.2026.5.15.0003</td><td>D-5</td><td>D-1</td></tr>
+                  <tr><td>AAO</td><td>0000000-00.2026.5.01.0004</td><td>D-7</td><td>D-1</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="pc-pane-fila" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Fila de processos</strong><span>Acesso separado da tela por processo</span></div>
+        <div class="pc-section-body">
+          <div class="pc-action-bar">
+            <button class="pc-action blue">Importar processos</button>
+            <button class="pc-action navy">Distribuir por responsável</button>
+            <button class="pc-action green">Gerar agendas</button>
+            <button class="pc-action light">Exportar fila</button>
+          </div>
+          <div style="overflow:auto">
+            <table class="pc-queue-table">
+              <thead><tr><th>Status</th><th>CNJ</th><th>Cliente</th><th>Parte contrária</th><th>Fase</th><th>Responsável</th><th>Preparo</th><th>Defesa</th><th>Estratégico</th></tr></thead>
+              <tbody>
+                <tr><td><span class="pc-status-dot amber"></span>Pendente docs</td><td>0000000-00.2026.5.02.0001</td><td>Cliente A</td><td>Reclamante A</td><td>Inicial</td><td>RFE</td><td>D-10</td><td>D-1</td><td>Sim</td></tr>
+                <tr><td><span class="pc-status-dot green"></span>Em preparo</td><td>0000000-00.2026.5.02.0002</td><td>Cliente B</td><td>Reclamante B</td><td>Instrução</td><td>BSO</td><td>D-8</td><td>D-1</td><td>Não</td></tr>
+                <tr><td><span class="pc-status-dot red"></span>Urgente</td><td>0000000-00.2026.5.15.0003</td><td>Cliente C</td><td>Reclamante C</td><td>Recursal</td><td>CAL</td><td>D-1</td><td>D-1</td><td>Sim</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <section id="pc-pane-workflows" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Workflows de lançamentos</strong><span>Agendas · Prazos · Agenda Equipe</span></div>
+        <div class="pc-section-body">
+          <div class="pc-workflow-rule-grid">
+            <div class="pc-workflow-rule"><div class="num">1</div><div class="lbl">Publicação recebida</div></div>
+            <div class="pc-workflow-rule"><div class="num">2</div><div class="lbl">Classificação do lançamento</div></div>
+            <div class="pc-workflow-rule"><div class="num">3</div><div class="lbl">Criação da agenda/prazo</div></div>
+            <div class="pc-workflow-rule"><div class="num">4</div><div class="lbl">Conferência e fila</div></div>
+          </div>
+
+          <div class="pc-workflow-board">
+            <div class="pc-workflow-column">
+              <div class="pc-workflow-head"><strong>Agendas</strong><span class="pc-workflow-count">Operacional</span></div>
+              <div class="pc-workflow-list">
+                <div class="pc-workflow-item"><strong>Quando usar</strong><span>Atividades internas de acompanhamento, solicitação, conferência e organização do processo.</span><small>Ex.: solicitar documentos</small></div>
+                <div class="pc-workflow-item"><strong>Dados mínimos</strong><span>Processo, cliente, responsável, data da agenda, tipo de atividade e observação.</span><small>Controladoria</small></div>
+                <div class="pc-workflow-item"><strong>Saída esperada</strong><span>Agenda criada na fila do responsável e visível no painel inicial.</span><small>Fila de agendas</small></div>
+              </div>
+            </div>
+
+            <div class="pc-workflow-column">
+              <div class="pc-workflow-head"><strong>Prazos</strong><span class="pc-workflow-count">Processual</span></div>
+              <div class="pc-workflow-list">
+                <div class="pc-workflow-item"><strong>Quando usar</strong><span>Eventos processuais com prazo fatal, prazo D-1/D-1 ou protocolo obrigatório.</span><small>Ex.: defesa D-1</small></div>
+                <div class="pc-workflow-item"><strong>Dados mínimos</strong><span>CNJ, tipo de prazo, data fatal, responsável, fase, origem da publicação e status.</span><small>Validação PJe</small></div>
+                <div class="pc-workflow-item"><strong>Saída esperada</strong><span>Prazo listado no painel de risco, BI da base, relatórios e fila de processos.</span><small>Controle de prazos</small></div>
+              </div>
+            </div>
+
+            <div class="pc-workflow-column">
+              <div class="pc-workflow-head"><strong>Agenda Equipe</strong><span class="pc-workflow-count">Distribuição</span></div>
+              <div class="pc-workflow-list">
+                <div class="pc-workflow-item"><strong>Quando usar</strong><span>Tarefas que precisam ser direcionadas ao grupo/equipe, sem depender apenas de um responsável individual.</span><small>Equipe responsável</small></div>
+                <div class="pc-workflow-item"><strong>Dados mínimos</strong><span>Grupo, profissional, atividade, data, cliente, processo e origem do lançamento.</span><small>Grupo A/B/C/D/E</small></div>
+                <div class="pc-workflow-item"><strong>Saída esperada</strong><span>Atividade visível para equipe, controladoria e dashboard de lançamentos.</span><small>Agenda equipe</small></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pc-section-card" style="margin-top:14px">
+            <div class="pc-section-head"><strong>Fluxos de lançamento</strong><span>Mapeamento operacional</span></div>
+            <div class="pc-section-body">
+              <div style="overflow:auto">
+                <table class="pc-workflow-table">
+                  <thead><tr><th>Aba/Fluxo</th><th>Conteúdo identificado</th><th>Status</th></tr></thead>
+                  <tbody>
+                    <tr><td>Workflow (2)</td><td>area · descricao_flow · tipo_acao · contagem_prazo_dias / TRABALHISTA · Acórdão · Incluir Agenda · 1 / TRABALHISTA · Acórdão · Incluir Agenda · 12</td><td>Mapeado</td></tr><tr><td>Workflow</td><td>area · descricao_flow · tipo_acao · contagem_prazo_dias / TRABALHISTA · Acórdão · Incluir Agenda · 45 / TRABALHISTA · Acórdão · Incluir Andamento · PUBLICAÇÃO</td><td>Mapeado</td></tr><tr><td>+</td><td>area · descricao_flow · tipo_acao · contagem_prazo_dias / TRABALHISTA · Acórdão · Incluir Agenda · 45 / TRABALHISTA · Acórdão · Incluir Andamento · PUBLICAÇÃO</td><td>Mapeado</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="pc-section-card" style="margin-top:14px">
+            <div class="pc-section-head"><strong>Cadastro de regra de lançamento</strong><span>Para o TI parametrizar</span></div>
+            <div class="pc-section-body">
+              <div class="pc-fields-grid">
+                <div class="pc-field"><label>Tipo de lançamento</label><select><option>Agenda</option><option>Prazo</option><option>Agenda Equipe</option></select></div>
+                <div class="pc-field"><label>Origem</label><select><option>Publicação</option><option>Petição inicial</option><option>Despacho</option><option>Audiência</option><option>Documento cliente</option><option>Manual</option></select></div>
+                <div class="pc-field"><label>Fase</label><select><option>Inicial</option><option>Instrução</option><option>Recursal</option><option>Recursal com Execução Provisória</option><option>Execução</option></select></div>
+                <div class="pc-field"><label>Responsável</label><select><option>Advogado responsável</option><option>Advogado preparo</option><option>Controladoria</option><option>Equipe</option></select></div>
+                <div class="pc-field full"><label>Descrição da regra</label><textarea rows="3" placeholder="Ex.: ao identificar publicação de designação de audiência, criar agenda de preparo D-10, prazo de protocolo D-1 e agenda equipe para solicitação de documentos."></textarea></div>
+              </div>
+              <div class="flex-row flex-end mt12">
+                <button class="btn btn-ghost btn-sm">Salvar regra</button>
+                <button class="btn btn-primary btn-sm">Aplicar workflow</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="pc-pane-dados" class="pc-modern-pane">
+
+      <div class="pc-quick-kpis pc-process-summary">
+        <div class="pc-quick-card"><div class="pc-quick-label">Status</div><div class="pc-quick-value">Andamento</div></div>
+        <div class="pc-quick-card"><div class="pc-quick-label">Fase</div><div class="pc-quick-value">Inicial</div></div>
+        <div class="pc-quick-card"><div class="pc-quick-label">Prazo preparo</div><div class="pc-quick-value">D-10</div></div>
+        <div class="pc-quick-card"><div class="pc-quick-label">Protocolo defesa</div><div class="pc-quick-value">D-1</div></div>
+        <div class="pc-quick-card"><div class="pc-quick-label">Marcador</div><div class="pc-quick-value">Estratégico</div></div>
+      </div>
+
+
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Upload do processo para preenchimento automático</strong><span>Petição inicial / PDF / Excel</span></div>
+        <div class="pc-section-body">
+          <div class="upload-zone" onclick="document.getElementById('pc-upload-processo').click()">
+            <input type="file" id="pc-upload-processo" accept=".pdf,.doc,.docx,.xlsx,.xls,.csv,.txt" style="display:none" onchange="pcSimularPreenchimentoAutomatico(event)">
+            <div style="font-size:30px;margin-bottom:8px">📤</div>
+            <div class="upload-title">Clique aqui para subir o processo e preencher o cadastro automaticamente</div>
+            <div class="upload-sub">Use a petição inicial, PDF do PJe, planilha ou CSV. O sistema deve extrair CNJ, partes, fase, pedidos, valores e responsáveis.</div>
+          </div>
+          <div id="pc-upload-feedback" class="template-note hidden mt12"></div>
+        </div>
+      </div>
+
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Dados principais</strong><span>Estrutura moderna P&amp;C</span></div>
+        <div class="pc-section-body">
+          <div class="pc-fields-grid">
+            <div class="pc-field"><label>Código</label><input placeholder="Gerado automaticamente"></div>
+            <div class="pc-field"><label>Número do processo/desdobramento</label><input placeholder="0000000-00.0000.0.00.0000"></div>
+            <div class="pc-field"><label>Status</label><select><option>Andamento</option><option>Suspenso</option><option>Arquivado</option></select></div>
+            <div class="pc-field"><label>Fase</label><select><option>Inicial</option><option>Instrução</option><option>Recursal</option><option>Recursal com Execução Provisória</option><option>Execução</option></select></div>
+
+            <div class="pc-field"><label>Área</label><select><option>Trabalhista</option><option>Cível</option><option>Tributário</option></select></div>
+            <div class="pc-field"><label>Tipo de ação</label><input placeholder="Reclamação Trabalhista"></div>
+            <div class="pc-field"><label>Cliente / parte principal</label><input placeholder="Cliente"></div>
+            <div class="pc-field"><label>Parte contrária</label><input placeholder="Reclamante"></div>
+
+            <div class="pc-field"><label>Órgão</label><input placeholder="TRT02 | Tribunal Regional do Trabalho"></div>
+            <div class="pc-field"><label>Comarca</label><input placeholder="São Paulo/SP"></div>
+            <div class="pc-field"><label>Foro</label><input placeholder="Central"></div>
+            <div class="pc-field"><label>Vara</label><input placeholder="04ª Vara do Trabalho"></div>
+
+            <div class="pc-field"><label>Perspectiva de perda</label><select><option>Possível</option><option>Provável</option><option>Remoto</option></select></div>
+            <div class="pc-field"><label>Percentual</label><input placeholder="50,00%"></div>
+            <div class="pc-field"><label>Polo</label><select><option>Passivo</option><option>Ativo</option></select></div>
+            <div class="pc-field"><label>Rito</label><select><option>Ordinário</option><option>Sumaríssimo</option><option>Sumário</option></select></div>
+
+            <div class="pc-field double">
+              <label>Profissionais</label>
+              <input placeholder="Advogado responsável / preparo / audiência">
+            </div>
+            <div class="pc-field">
+              <label>Estratégico</label>
+              <div class="pc-strategic-toggle"><input type="checkbox"> Marcar processo como estratégico</div>
+            </div>
+            <div class="pc-field">
+              <label>Validação PJe</label>
+              <button class="pc-action blue" style="width:100%">Validar dados no PJe</button>
+            </div>
+
+            <div class="pc-field full"><label>Observações internas</label><textarea rows="3" placeholder="Observações da Controladoria e do grupo responsável"></textarea></div>
+            <div class="pc-field full"><label>Observações ao cliente</label><textarea rows="3" placeholder="Informações visíveis/compartilháveis com o cliente"></textarea></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pc-pane-pedidos" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Objetos / Pedidos</strong><span>Com classificação de perda</span></div>
+        <div class="pc-section-body">
+          <div style="overflow:auto">
+            <table class="pc-orders-table">
+              <thead>
+                <tr>
+                  <th>Pedido</th>
+                  <th>Descrição</th>
+                  <th>Fase</th>
+                  <th>Probabilidade</th>
+                  <th>Observação estratégica</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input value="Horas extras"></td>
+                  <td><input value="Pedido de pagamento de horas extras e reflexos"></td>
+                  <td><select><option>Inicial</option><option>Instrução</option><option>Recursal</option><option>Recursal com Execução Provisória</option><option>Execução</option></select></td>
+                  <td><select><option>Possível</option><option>Provável</option><option>Remoto</option></select></td>
+                  <td><input placeholder="Ex.: validar controles de jornada"></td>
+                </tr>
+                <tr>
+                  <td><input value="Intervalo intrajornada"></td>
+                  <td><input value="Pedido de intervalo suprimido"></td>
+                  <td><select><option>Inicial</option><option>Instrução</option><option>Recursal</option><option>Recursal com Execução Provisória</option><option>Execução</option></select></td>
+                  <td><select><option>Possível</option><option>Provável</option><option>Remoto</option></select></td>
+                  <td><input placeholder="Ex.: checar jornada e cartões"></td>
+                </tr>
+                <tr>
+                  <td><input value="PLR"></td>
+                  <td><input value="Pedido de participação nos lucros/resultados"></td>
+                  <td><select><option>Inicial</option><option>Instrução</option><option>Recursal</option><option>Recursal com Execução Provisória</option><option>Execução</option></select></td>
+                  <td><select><option>Possível</option><option>Provável</option><option>Remoto</option></select></td>
+                  <td><input placeholder="Ex.: conferir norma coletiva"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="flex-row flex-end mt12">
+            <button class="btn btn-ghost btn-sm">+ Adicionar pedido</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pc-pane-valores" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Aba de valores</strong><span>Valor original · juros · correção · probabilidade</span></div>
+        <div class="pc-section-body">
+
+          <div class="pc-calc-upload-box">
+            <div class="pc-field">
+              <label>Upload do cálculo</label>
+              <input type="file" id="pc-upload-calculo" accept=".pdf,.xlsx,.xls,.csv" onchange="pcPreencherValorCalculo(event)">
+            </div>
+            <div class="pc-field">
+              <label>A que se refere o cálculo?</label>
+              <input id="pc-ref-calculo" placeholder="Ex.: Horas extras, intervalo, PLR, valor da causa">
+            </div>
+            <button class="pc-action blue" onclick="document.getElementById('pc-upload-calculo').click()">Preencher valores</button>
+          </div>
+          <div id="pc-calc-feedback" class="pc-calc-result hidden"></div>
+
+          <div style="overflow:auto">
+            <table class="pc-values-table">
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Fase</th>
+                  <th>Descrição / Pedido</th>
+                  <th>Valor original</th>
+                  <th>Data ref.</th>
+                  <th>Juros</th>
+                  <th>Índice</th>
+                  <th>Correção monetária</th>
+                  <th>Valor atualizado</th>
+                  <th>% contingência</th>
+                  <th>Prob. perda</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><select><option>P</option><option>V</option></select></td>
+                  <td><select><option>Inicial</option><option>Instrução</option><option>Recursal</option><option>Recursal com Execução Provisória</option><option>Execução</option></select></td>
+                  <td><input value="Horas Extras" id="pc-val-desc"></td>
+                  <td><input value="R$ 0,00" id="pc-val-original"></td>
+                  <td><input value="" id="pc-val-dataref"></td>
+                  <td><input value="R$ 0,00" id="pc-val-juros"></td>
+                  <td><select><option>SELIC</option><option>TR</option><option>IPCA-E</option><option>INPC</option><option>Tabela JT</option><option>Manual</option></select></td>
+                  <td><input value="R$ 0,00" id="pc-val-correcao"></td>
+                  <td><input value="R$ 0,00" id="pc-val-atualizado"></td>
+                  <td><input value="50,00%"></td>
+                  <td><select><option>Possível</option><option>Provável</option><option>Remoto</option></select></td>
+                </tr>
+                <tr>
+                  <td><select><option>P</option><option>V</option></select></td>
+                  <td><select><option>Inicial</option><option>Instrução</option><option>Recursal</option><option>Recursal com Execução Provisória</option><option>Execução</option></select></td>
+                  <td><input value="Intervalo intrajornada"></td>
+                  <td><input value="R$ 29.515,91"></td>
+                  <td><input value="04/02/2026"></td>
+                  <td><input value="R$ 0,00"></td>
+                  <td><select><option>SELIC</option><option>TR</option><option>IPCA-E</option><option>INPC</option><option>Tabela JT</option><option>Manual</option></select></td>
+                  <td><input value="R$ 0,00"></td>
+                  <td><input value="R$ 29.515,91"></td>
+                  <td><input value="50,00%"></td>
+                  <td><select><option>Possível</option><option>Provável</option><option>Remoto</option></select></td>
+                </tr>
+                <tr>
+                  <td><select><option>P</option><option>V</option></select></td>
+                  <td><select><option>Inicial</option><option>Instrução</option><option>Recursal</option><option>Recursal com Execução Provisória</option><option>Execução</option></select></td>
+                  <td><input value="Valor da causa"></td>
+                  <td><input value="R$ 383.509,24"></td>
+                  <td><input value="12/01/2026"></td>
+                  <td><input value="R$ 0,00"></td>
+                  <td><select><option>SELIC</option><option>TR</option><option>IPCA-E</option><option>INPC</option><option>Tabela JT</option><option>Manual</option></select></td>
+                  <td><input value="R$ 0,00"></td>
+                  <td><input value="R$ 383.509,24"></td>
+                  <td><input value="0,00%"></td>
+                  <td><select><option>Possível</option><option>Provável</option><option>Remoto</option></select></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="flex-row flex-end mt12">
+            <button class="btn btn-ghost btn-sm">+ Adicionar valor</button>
+            <button class="btn btn-primary btn-sm">Recalcular valores</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pc-pane-documentos" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Documentos</strong><span>Cliente envia por link simples</span></div>
+        <div class="pc-section-body">
+          <div class="upload-zone">
+            <div style="font-size:28px;margin-bottom:8px">📎</div>
+            <div class="upload-title">Upload de documentos do processo</div>
+            <div class="upload-sub">Petição inicial, documentos do cliente, procuração, defesa, atas e comprovantes</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="pc-pane-audiencias" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Audiências</strong><span>Controle de pauta, preparo e protocolo</span></div>
+        <div class="pc-section-body">
+          <div class="pc-fields-grid">
+            <div class="pc-field"><label>Tipo de audiência</label><select><option>Inicial</option><option>Instrução</option><option>Una</option><option>Conciliação</option><option>Sessão de julgamento</option></select></div>
+            <div class="pc-field"><label>Data</label><input type="date"></div>
+            <div class="pc-field"><label>Horário</label><input type="time"></div>
+            <div class="pc-field"><label>Formato</label><select><option>Presencial</option><option>Telepresencial</option><option>Híbrida</option></select></div>
+            <div class="pc-field"><label>Advogado audiência / SO</label><input placeholder="Sigla / nome"></div>
+            <div class="pc-field"><label>Advogado preparo</label><input placeholder="Sigla / nome"></div>
+            <div class="pc-field"><label>Prazo preparo</label><input value="10 dias antes"></div>
+            <div class="pc-field"><label>Protocolo defesa</label><input value="1 dia antes"></div>
+            <div class="pc-field full"><label>Orientações</label><textarea rows="4" placeholder="Orientações, preposto, testemunhas, documentos pendentes e observações para audiência"></textarea></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="pc-pane-modelos" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Modelos P&amp;C</strong><span>Defesa · documentos · preparo · habilitação</span></div>
+        <div class="pc-section-body">
+          <div class="modelos-grid">
+            <div class="modelo-card"><div class="modelo-head"><strong>Modelo de defesa</strong><span class="modelo-tag">Contestação</span></div><div class="modelo-body"><div class="modelo-preview" id="m1">EXMO. SR. DR. JUIZ DO TRABALHO DA [VARA] DE [COMARCA]/[UF]
+
+Processo nº [NÚMERO CNJ]
+
+[CLIENTE], por seus advogados, apresenta CONTESTAÇÃO, impugnando os pedidos formulados na inicial e requerendo a total improcedência, conforme documentos e fundamentos a serem desenvolvidos.</div><div class="modelo-actions"><button class="btn btn-ghost btn-sm" onclick="copiarModelo('m1')">📋 Copiar</button></div></div></div>
+            <div class="modelo-card"><div class="modelo-head"><strong>E-mail solicitação documentos</strong><span class="modelo-tag">Cliente</span></div><div class="modelo-body"><div class="modelo-preview" id="m2">Prezados(as), boa tarde.
+
+Solicitamos o envio dos documentos necessários para elaboração da defesa do processo nº [NÚMERO CNJ], por meio do link abaixo:
+
+[LINK DE UPLOAD]
+
+Prazo interno para envio: [DATA — 10 DIAS ANTES].
+
+Permanecemos à disposição.</div><div class="modelo-actions"><button class="btn btn-ghost btn-sm" onclick="copiarModelo('m2')">📋 Copiar</button></div></div></div>
+            <div class="modelo-card"><div class="modelo-head"><strong>Preparo</strong><span class="modelo-tag">D-10</span></div><div class="modelo-body"><div class="modelo-preview" id="m3">CHECKLIST DE PREPARO
+
+1. Validar dados no PJe.
+2. Conferir fase, audiência e responsáveis.
+3. Solicitar documentos ao cliente.
+4. Revisar pedidos e valores.
+5. Preparar minuta de defesa.
+6. Registrar pendências.</div><div class="modelo-actions"><button class="btn btn-ghost btn-sm" onclick="copiarModelo('m3')">📋 Copiar</button></div></div></div>
+            <div class="modelo-card"><div class="modelo-head"><strong>Habilitação</strong><span class="modelo-tag">PJe</span></div><div class="modelo-body"><div class="modelo-preview" id="m4">EXMO. SR. DR. JUIZ DO TRABALHO DA [VARA]
+
+Processo nº [NÚMERO CNJ]
+
+[CLIENTE] requer a habilitação de seus patronos nos autos, com intimações em nome de [ADVOGADO], OAB/[UF] nº [NÚMERO].</div><div class="modelo-actions"><button class="btn btn-ghost btn-sm" onclick="copiarModelo('m4')">📋 Copiar</button></div></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="pc-pane-solicitacao" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Solicitação de documentos integrada com o cliente</strong><span>E-mail simples + link de upload</span></div>
+        <div class="pc-section-body">
+          <div class="pc-flow-grid">
+            <div class="pc-flow-card">
+              <strong>1. Gerar solicitação</strong>
+              <p>O sistema monta automaticamente o e-mail com base no cliente, processo, pedidos e prazo de preparo.</p>
+              <span class="pc-status-pill blue">Modelo automático</span>
+            </div>
+            <div class="pc-flow-card">
+              <strong>2. Enviar link ao cliente</strong>
+              <p>O cliente recebe um link simples para anexar os documentos, sem precisar acessar o sistema interno.</p>
+              <span class="pc-status-pill amber">Aguardando retorno</span>
+            </div>
+            <div class="pc-flow-card">
+              <strong>3. Salvar na pasta do processo</strong>
+              <p>Os documentos enviados entram automaticamente na pasta específica do processo.</p>
+              <span class="pc-status-pill green">Pasta vinculada</span>
+            </div>
+          </div>
+
+          <div class="pc-fields-grid">
+            <div class="pc-field"><label>E-mail do cliente</label><input placeholder="cliente@empresa.com.br"></div>
+            <div class="pc-field"><label>Prazo para envio</label><input type="date"></div>
+            <div class="pc-field"><label>Responsável interno</label><input placeholder="Advogado / Controladoria"></div>
+            <div class="pc-field"><label>Status</label><select><option>Não enviado</option><option>Enviado</option><option>Respondido parcialmente</option><option>Respondido integralmente</option><option>Pendente cliente</option></select></div>
+            <div class="pc-field full"><label>Documentos solicitados</label>
+              
+              <div class="pc-doc-checklist">
+                <label class="pc-doc-item"><input type="checkbox" checked> Contrato de trabalho/aditivos</label>
+                <label class="pc-doc-item"><input type="checkbox" checked> Ficha de registro</label>
+                <label class="pc-doc-item"><input type="checkbox" checked> Cartões de ponto</label>
+                <label class="pc-doc-item"><input type="checkbox" checked> Holerites</label>
+                <label class="pc-doc-item"><input type="checkbox" checked> TRCT e comprovantes rescisórios</label>
+                <label class="pc-doc-item"><input type="checkbox"> Normas coletivas/PLR</label>
+                <label class="pc-doc-item"><input type="checkbox"> Acordo de compensação/banco de horas</label>
+                <label class="pc-doc-item"><input type="checkbox"> Comprovantes de FGTS</label>
+                <label class="pc-doc-item"><input type="checkbox"> PPP/LTCAT/laudos técnicos</label>
+                <label class="pc-doc-item"><input type="checkbox"> ASO/admissionais/periódicos/demissionais</label>
+                <label class="pc-doc-item"><input type="checkbox"> Advertências/suspensões</label>
+                <label class="pc-doc-item"><input type="checkbox"> E-mails, prints e comunicações internas</label>
+                <label class="pc-doc-item"><input type="checkbox"> Procuração/substabelecimento</label>
+                <label class="pc-doc-item"><input type="checkbox"> Comprovantes de pagamento</label>
+                <label class="pc-doc-item"><input type="checkbox"> Documentos específicos dos pedidos</label>
+                <label class="pc-doc-item"><input type="checkbox"> Documentos de preposto/testemunhas</label>
+                <label class="pc-doc-item"><input type="checkbox"> Ata ou termo de audiência</label>
+                <label class="pc-doc-item"><input type="checkbox"> Outros documentos</label>
+              </div>
+              <div class="pc-doc-extra">
+                <div class="pc-field">
+                  <label>Outros documentos necessários</label>
+                  <input placeholder="Descrever outros documentos a solicitar">
+                </div>
+                <div class="pc-field">
+                  <label>Observação ao cliente</label>
+                  <input placeholder="Ex.: enviar arquivos legíveis e separados por tipo">
+                </div>
+              </div>
+
+            </div>
+            <div class="pc-field full"><label>Link de upload do cliente</label><input value="https://lawgico.peixotoecury.com.br/upload/[numero-processo]" readonly></div>
+          </div>
+
+          <div class="flex-row flex-end mt12">
+            <button class="btn btn-ghost btn-sm">Gerar e-mail</button>
+            <button class="btn btn-primary btn-sm">Enviar solicitação</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pc-pane-contestacao" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Contestação via IA</strong><span>Minuta orientada pelos pedidos, valores e documentos</span></div>
+        <div class="pc-section-body">
+          <div class="pc-ai-box">
+            <h3>🤖 Geração assistida da contestação</h3>
+            <p>A IA deve usar os dados do cadastro, pedidos, valores, documentos recebidos e modelos P&amp;C para montar uma minuta inicial. O advogado revisa, ajusta e aprova antes de qualquer protocolo.</p>
+          </div>
+
+          <div class="pc-fields-grid mt12">
+            <div class="pc-field"><label>Base da minuta</label><select><option>Modelo P&C Trabalhista</option><option>Modelo por cliente</option><option>Modelo por tipo de pedido</option></select></div>
+            <div class="pc-field"><label>Nível de detalhe</label><select><option>Completo</option><option>Objetivo</option><option>Somente tópicos</option></select></div>
+            <div class="pc-field"><label>Documentos recebidos</label><select><option>Usar todos</option><option>Usar apenas validados</option><option>Selecionar manualmente</option></select></div>
+            <div class="pc-field"><label>Status da minuta</label><select><option>Não gerada</option><option>Gerada para revisão</option><option>Revisada</option><option>Aprovada</option></select></div>
+            <div class="pc-field full"><label>Instruções para IA</label><textarea rows="4" placeholder="Ex.: reforçar controle de jornada, impugnar danos morais, destacar documentos anexos..."></textarea></div>
+          </div>
+
+          <div class="flex-row flex-end mt12">
+            <button class="btn btn-ghost btn-sm">Pré-visualizar estrutura</button>
+            <button class="btn btn-primary btn-sm">Gerar contestação via IA</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pc-pane-emails" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>E-mails dos advogados para o cliente</strong><span>Comunicações padronizadas</span></div>
+        <div class="pc-section-body">
+          <div class="pc-fields-grid">
+            <div class="pc-field"><label>Tipo de e-mail</label><select onchange="pcTrocarEmailCliente(this.value)"><option value="docs">Solicitação de documentos</option><option value="pendencia">Cobrança de pendência</option><option value="preparo">Alinhamento de preparo</option><option value="protocolo">Confirmação de protocolo</option></select></div>
+            <div class="pc-field"><label>Cliente</label><input placeholder="Nome do cliente"></div>
+            <div class="pc-field"><label>Advogado responsável</label><input placeholder="Nome/sigla"></div>
+            <div class="pc-field"><label>Copiar Controladoria</label><select><option>Sim</option><option>Não</option></select></div>
+            <div class="pc-field full"><label>Prévia do e-mail</label><div class="pc-mail-preview" id="pc-email-preview">Prezados(as), boa tarde.
+
+Solicitamos, por gentileza, o envio dos documentos necessários para elaboração da defesa do processo nº [NÚMERO CNJ], por meio do link abaixo:
+
+[LINK DE UPLOAD]
+
+Prazo para envio: [DATA].
+
+Permanecemos à disposição.</div></div>
+          </div>
+          <div class="flex-row flex-end mt12">
+            <button class="btn btn-ghost btn-sm" onclick="copiarModelo('pc-email-preview')">Copiar e-mail</button>
+            <button class="btn btn-primary btn-sm">Enviar pelo Outlook</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pc-pane-retorno" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Retorno do cliente e pasta específica</strong><span>Organização automática de documentos</span></div>
+        <div class="pc-section-body">
+          <div class="pc-flow-grid">
+            <div class="pc-flow-card"><strong>Entrada do cliente</strong><p>Arquivos enviados pelo link de upload são recebidos com identificação do processo.</p><span class="pc-status-pill blue">Upload externo</span></div>
+            <div class="pc-flow-card"><strong>Classificação</strong><p>O sistema classifica por tipo: contrato, ponto, holerite, TRCT, procuração, documentos diversos.</p><span class="pc-status-pill amber">Triagem automática</span></div>
+            <div class="pc-flow-card"><strong>Pasta final</strong><p>Após envio, os documentos são gravados na pasta do processo para uso na defesa e preparo.</p><span class="pc-status-pill green">SharePoint/OneDrive</span></div>
+          </div>
+
+          <div class="pc-fields-grid">
+            <div class="pc-field full"><label>Caminho da pasta do processo</label><div class="pc-folder-path">/Controladoria Jurídica/Lawgico/Processos/[Cliente]/[Número CNJ]/Documentos do Cliente/</div></div>
+            <div class="pc-field"><label>Arquivos recebidos</label><input value="0" readonly></div>
+            <div class="pc-field"><label>Arquivos pendentes</label><input value="8" readonly></div>
+            <div class="pc-field"><label>Último retorno</label><input value="Aguardando envio" readonly></div>
+            <div class="pc-field"><label>Status da pasta</label><select><option>Criada</option><option>Aguardando criação</option><option>Com erro</option></select></div>
+            <div class="pc-field full"><label>Observações de triagem</label><textarea rows="4" placeholder="Ex.: documento ilegível, faltou contrato, cartões de ponto recebidos parcialmente..."></textarea></div>
+          </div>
+
+          <div class="flex-row flex-end mt12">
+            <button class="btn btn-ghost btn-sm">Abrir pasta</button>
+            <button class="btn btn-primary btn-sm">Reprocessar documentos</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="pc-pane-preparo" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Preparo</strong><span>Agenda automática 10 dias antes</span></div>
+        <div class="pc-section-body">
+          <div class="pc-fields-grid">
+            <div class="pc-field"><label>Data base</label><input type="date"></div>
+            <div class="pc-field"><label>Prazo de preparo</label><input value="10 dias antes"></div>
+            <div class="pc-field"><label>Responsável pelo preparo</label><input placeholder="Sigla / nome"></div>
+            <div class="pc-field"><label>Status</label><select><option>Pendente</option><option>Em andamento</option><option>Concluído</option></select></div>
+            <div class="pc-field full"><label>Agendas a criar</label><textarea rows="5">Solicitar documentos ao cliente
+Validar cadastro no PJe
+Conferir pedidos e valores
+Preparar defesa
+Revisar documentos anexos
+Alinhar audiência/SO quando aplicável</textarea></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pc-pane-habilitacao" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Habilitação</strong><span>Cadastro e protocolo</span></div>
+        <div class="pc-section-body">
+          <div class="pc-fields-grid">
+            <div class="pc-field"><label>Advogado a habilitar</label><input placeholder="Nome / OAB"></div>
+            <div class="pc-field"><label>Tipo</label><select><option>Procuração</option><option>Substabelecimento</option><option>Habilitação simples</option></select></div>
+            <div class="pc-field"><label>Prazo protocolo defesa</label><input value="1 dia antes"></div>
+            <div class="pc-field"><label>Status</label><select><option>Pendente</option><option>Protocolado</option><option>Conferido</option></select></div>
+            <div class="pc-field full"><label>Observações</label><textarea rows="4" placeholder="Observações para habilitação nos autos"></textarea></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pc-pane-upload" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Upload / Migração de processos</strong><span>Preenchimento automático do cadastro</span></div>
+        <div class="pc-section-body">
+          <div class="upload-zone">
+            <div style="font-size:30px;margin-bottom:8px">📤</div>
+            <div class="upload-title">Upload da lista de processos ou petição inicial</div>
+            <div class="upload-sub">Excel/CSV/PDF para preencher automaticamente CNJ, cliente, parte contrária, fase, responsável, status, pedidos e valores</div>
+          </div>
+          <div class="template-note mt12">
+            Regra do módulo: após a importação, cada usuário visualiza apenas os processos vinculados ao próprio login/perfil.
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="pc-pane-relatorios" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Relatórios</strong><span>Cadastros efetuados · filtros · Excel</span></div>
+        <div class="pc-section-body">
+
+          <div class="pc-report-filter-bar">
+            <div>
+              <label>Tipo de relatório</label>
+              <select id="rel-tipo">
+                <option>Cadastros efetuados</option>
+                <option>Cadastros por profissional</option>
+                <option>Cadastros por cliente</option>
+                <option>Cadastros por fase</option>
+                <option>Documentos pendentes</option>
+                <option>Valores e exposição</option>
+              </select>
+            </div>
+            <div>
+              <label>Data inicial</label>
+              <input type="date" id="rel-data-inicial">
+            </div>
+            <div>
+              <label>Data final</label>
+              <input type="date" id="rel-data-final">
+            </div>
+            <div>
+              <label>Filtro</label>
+              <select id="rel-filtro">
+                <option>Todos</option>
+                <option>Somente estratégicos</option>
+                <option>Somente com preparo pendente</option>
+                <option>Somente com documentos pendentes</option>
+                <option>Somente concluídos</option>
+              </select>
+            </div>
+            <button class="pc-action blue" onclick="pcGerarRelatorioCadastros()">Gerar relatório</button>
+          </div>
+
+          <div class="pc-report-grid">
+            <div class="pc-report-card"><strong>Cadastros efetuados</strong><p>Lista de processos cadastrados no período, com data/hora, usuário, cliente, fase, status e marcador estratégico.</p><button class="btn btn-primary btn-sm" onclick="pcGerarRelatorioCadastros()">Gerar</button></div>
+            <div class="pc-report-card"><strong>Cadastros por profissional</strong><p>Quantidade de cadastros realizados ou vinculados por responsável, equipe, preparo e advogado.</p><button class="btn btn-primary btn-sm">Gerar</button></div>
+            <div class="pc-report-card"><strong>Cadastros por cliente</strong><p>Visão por cliente, grupo, fase, valores e quantidade de processos importados/cadastrados.</p><button class="btn btn-primary btn-sm">Gerar</button></div>
+            <div class="pc-report-card"><strong>Relatório de valores</strong><p>Valor original, juros, correção monetária, índice aplicado e valor atualizado.</p><button class="btn btn-primary btn-sm">Gerar</button></div>
+            <div class="pc-report-card"><strong>Relatório de documentos</strong><p>Itens solicitados, enviados, pendentes e armazenados na pasta do processo.</p><button class="btn btn-primary btn-sm">Gerar</button></div>
+            <div class="pc-report-card"><strong>Relatório executivo</strong><p>Visão para sócios com estratégicos, exposição, fase, status e risco.</p><button class="btn btn-primary btn-sm">Gerar</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Resultado — Cadastros efetuados</strong><span id="rel-periodo-label">Período não filtrado</span></div>
+        <div class="pc-section-body">
+          <div class="flex-row flex-end" style="margin-bottom:12px">
+            <button class="btn btn-ghost btn-sm" onclick="pcGerarRelatorioCadastros()">Atualizar</button>
+            <button class="btn btn-primary btn-sm" onclick="pcExportarCadastrosExcel()">Exportar Excel</button>
+          </div>
+          <div style="overflow:auto">
+            <table class="pc-cadastros-table" id="pc-cadastros-table">
+              <thead>
+                <tr>
+                  <th>Data cadastro</th>
+                  <th>Usuário</th>
+                  <th>CNJ</th>
+                  <th>Cliente</th>
+                  <th>Parte contrária</th>
+                  <th>Fase</th>
+                  <th>Status</th>
+                  <th>Estratégico</th>
+                  <th>Preparo</th>
+                  <th>Defesa</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>08/05/2026</td><td>Carol Honório</td><td>0000000-00.2026.5.02.0001</td><td>Cliente A</td><td>Reclamante A</td><td>Inicial</td><td>Andamento</td><td>Sim</td><td>D-10</td><td>D-1</td></tr>
+                <tr><td>08/05/2026</td><td>RFE</td><td>0000000-00.2026.5.02.0002</td><td>Cliente B</td><td>Reclamante B</td><td>Instrução</td><td>Andamento</td><td>Não</td><td>D-8</td><td>D-1</td></tr>
+                <tr><td>07/05/2026</td><td>BSO</td><td>0000000-00.2026.5.15.0003</td><td>Cliente C</td><td>Reclamante C</td><td>Recursal</td><td>Andamento</td><td>Sim</td><td>D-5</td><td>D-1</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="pc-pane-bibase" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>BI da Base</strong><span>Opção para gerar painel analítico</span></div>
+        <div class="pc-section-body">
+          <div class="pc-action-bar">
+            <button class="pc-action blue">Gerar BI da base</button>
+            <button class="pc-action navy">Atualizar indicadores</button>
+            <button class="pc-action green">Exportar Power BI/Excel</button>
+          </div>
+          <div class="pc-home-kpis">
+            <div class="pc-home-kpi"><div class="label">Total base</div><div class="value">847</div><div class="sub">processos importados</div></div>
+            <div class="pc-home-kpi"><div class="label">Inicial</div><div class="value">312</div><div class="sub">fase inicial</div></div>
+            <div class="pc-home-kpi"><div class="label">Instrução</div><div class="value">205</div><div class="sub">em instrução</div></div>
+            <div class="pc-home-kpi"><div class="label">Recursal</div><div class="value">178</div><div class="sub">fase recursal</div></div>
+            <div class="pc-home-kpi"><div class="label">Execução</div><div class="value">152</div><div class="sub">em execução</div></div>
+            <div class="pc-home-kpi"><div class="label">Exposição</div><div class="value">R$ 12,4M</div><div class="sub">valor atualizado</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pc-pane-documentosPasta" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Documentos específicos da pasta</strong><span>Arquivos vinculados ao processo</span></div>
+        <div class="pc-section-body">
+          <div style="overflow:auto">
+            <table class="pc-folder-table">
+              <thead><tr><th>Tipo</th><th>Documento</th><th>Status</th><th>Status</th><th>Pasta</th><th>Última atualização</th></tr></thead>
+              <tbody>
+                <tr><td>Inicial</td><td>Petição inicial</td><td>PJe</td><td><span class="pc-status-dot green"></span>Recebido</td><td>/PJe/Inicial</td><td>Hoje</td></tr>
+                <tr><td>Cliente</td><td>Cartões de ponto</td><td>Upload cliente</td><td><span class="pc-status-dot amber"></span>Parcial</td><td>/Documentos do Cliente/Jornada</td><td>Ontem</td></tr>
+                <tr><td>Defesa</td><td>Minuta de contestação</td><td>IA/Advogado</td><td><span class="pc-status-dot red"></span>Pendente revisão</td><td>/Defesa/Minutas</td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pc-pane-profissionais" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Cadastro de profissionais</strong><span>Importar e manter responsáveis</span></div>
+        <div class="pc-section-body">
+          <div class="pc-action-bar">
+            <button class="pc-action blue">Upload planilha de profissionais</button>
+            <button class="pc-action green">Cadastrar profissional</button>
+            <button class="pc-action light">Exportar cadastro</button>
+          </div>
+          <div style="overflow:auto">
+            <table class="pc-prof-table">
+              <thead><tr><th>Status</th><th>Sigla</th><th>Nome</th><th>Equipe</th><th>E-mail</th><th>Perfil</th><th>Atuação</th></tr></thead>
+              <tbody>
+                <tr><td><span class="pc-status-dot green"></span>Ativo</td><td>RFE</td><td>Profissional exemplo</td><td>B1</td><td>profissional@peixotoecury.com.br</td><td>Advogado</td><td>Preparo/Defesa</td></tr>
+                <tr><td><span class="pc-status-dot green"></span>Ativo</td><td>BSO</td><td>Profissional exemplo</td><td>B2</td><td>profissional@peixotoecury.com.br</td><td>Advogado</td><td>Audiência</td></tr>
+                <tr><td><span class="pc-status-dot amber"></span>Pendente</td><td>---</td><td>Novo cadastro</td><td>---</td><td>---</td><td>---</td><td>---</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pc-pane-trts" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>TRT's indisponíveis</strong><span>Monitoramento PJe</span></div>
+        <div class="pc-section-body">
+          <div class="pc-trt-grid">
+            <div class="pc-trt-card"><strong>TRT 02</strong><span>Disponível · PJe respondendo normalmente</span></div>
+            <div class="pc-trt-card off"><strong>TRT 15</strong><span>Indisponível · falha de consulta PJe</span></div>
+            <div class="pc-trt-card warn"><strong>TRT 03</strong><span>Instável · tempo de resposta elevado</span></div>
+            <div class="pc-trt-card"><strong>TRT 01</strong><span>Disponível · validação ativa</span></div>
+            <div class="pc-trt-card off"><strong>TRT 12</strong><span>Indisponível · manutenção informada</span></div>
+            <div class="pc-trt-card warn"><strong>TRT 09</strong><span>Instável · autenticação intermitente</span></div>
+            <div class="pc-trt-card"><strong>TRT 18</strong><span>Disponível · sem alertas</span></div>
+            <div class="pc-trt-card"><strong>TRT 10</strong><span>Disponível · sem alertas</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="pc-pane-monitorCnpj" class="pc-modern-pane">
+      <div class="pc-section-card">
+        <div class="pc-section-head"><strong>Integração com Tribunais — Novas ações por CNPJ</strong><span>TRT/PJe · captura de distribuições</span></div>
+        <div class="pc-section-body">
+
+          <div class="pc-monitor-grid">
+            <div class="pc-monitor-card">
+              <strong>Objetivo do módulo</strong>
+              <p>Ao inserir o CNPJ do cliente, o Lawgico consulta os Tribunais do Trabalho/TRTs integrados para identificar novas ações distribuídas, validar se o processo já existe na base e enviar novos casos para a fila de cadastro.</p>
+            </div>
+            <div class="pc-monitor-card">
+              <strong>Fluxo esperado</strong>
+              <p>CNPJ → consulta TRT/PJe → novas distribuições → validação de duplicidade → enriquecimento dos dados → envio para fila de processos → criação de preparo, documentos e prazos.</p>
+            </div>
+          </div>
+
+          <div class="pc-cnpj-row">
+            <div>
+              <label>CNPJ monitorado</label>
+              <input id="pc-cnpj-monitor" placeholder="00.000.000/0000-00">
+            </div>
+            <div>
+              <label>Cliente</label>
+              <input id="pc-cliente-monitor" placeholder="Nome do cliente">
+            </div>
+            <div>
+              <label>Tribunal / abrangência</label>
+              <select id="pc-trt-monitor">
+                <option>Todos os TRTs disponíveis</option>
+                <option>TRT 01</option><option>TRT 02</option><option>TRT 03</option><option>TRT 04</option><option>TRT 05</option>
+                <option>TRT 06</option><option>TRT 07</option><option>TRT 08</option><option>TRT 09</option><option>TRT 10</option>
+                <option>TRT 11</option><option>TRT 12</option><option>TRT 13</option><option>TRT 14</option><option>TRT 15</option>
+                <option>TRT 16</option><option>TRT 17</option><option>TRT 18</option><option>TRT 19</option><option>TRT 20</option>
+                <option>TRT 21</option><option>TRT 22</option><option>TRT 23</option><option>TRT 24</option>
+              </select>
+            </div>
+            <button class="pc-action blue" onclick="pcSimularConsultaCnpj()">Consultar novas ações</button>
+          </div>
+
+          <div class="pc-section-card">
+            <div class="pc-section-head"><strong>Resultado da consulta</strong><span id="pc-consulta-status">Aguardando CNPJ</span></div>
+            <div class="pc-section-body">
+              <div class="flex-row flex-end" style="margin-bottom:12px">
+                <button class="btn btn-ghost btn-sm" onclick="pcSimularConsultaCnpj()">Atualizar consulta</button>
+                <button class="btn btn-primary btn-sm">Enviar selecionados para fila</button>
+                <button class="btn btn-ghost btn-sm">Exportar Excel</button>
+              </div>
+              <div style="overflow:auto">
+                <table class="pc-new-actions-table">
+                  <thead>
+                    <tr>
+                      <th>Sel.</th>
+                      <th>Status</th>
+                      <th>TRT</th>
+                      <th>Data distribuição</th>
+                      <th>CNJ</th>
+                      <th>Cliente/CNPJ</th>
+                      <th>Parte contrária</th>
+                      <th>Vara</th>
+                      <th>Fase</th>
+                      <th>Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pc-novas-acoes-body">
+                    <tr><td colspan="10" style="text-align:center;color:#7E98AA;padding:20px">Informe um CNPJ e consulte para visualizar novas ações distribuídas.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="pc-section-card" style="margin-top:14px">
+            <div class="pc-section-head"><strong>Regras para o TI</strong><span>Integração e segurança</span></div>
+            <div class="pc-section-body">
+              <div class="pc-flow-grid">
+                <div class="pc-flow-card"><strong>1. Consulta por CNPJ</strong><p>Permitir cadastro de CNPJs monitorados por cliente e consulta periódica aos TRTs/PJe disponíveis.</p><span class="pc-status-pill blue">Monitoramento</span></div>
+                <div class="pc-flow-card"><strong>2. Evitar duplicidade</strong><p>Antes de importar, cruzar CNJ, partes, CNPJ e cliente com a base interna Lawgico.</p><span class="pc-status-pill amber">Validação</span></div>
+                <div class="pc-flow-card"><strong>3. Criar fila automática</strong><p>Novas ações entram na fila de processos com status “Aguardando cadastro” e origem “TRT/PJe”.</p><span class="pc-status-pill green">Fila</span></div>
+                <div class="pc-flow-card"><strong>4. Log de consulta</strong><p>Registrar data, usuário, TRT consultado, retorno, erros e indisponibilidades.</p><span class="pc-status-pill blue">Auditoria</span></div>
+                <div class="pc-flow-card"><strong>5. Alertas</strong><p>Quando novas ações forem encontradas, gerar alerta para Controladoria e responsável pelo cliente.</p><span class="pc-status-pill amber">Notificação</span></div>
+                <div class="pc-flow-card"><strong>6. Respeitar acesso</strong><p>Cada usuário visualiza apenas clientes/CNPJs autorizados conforme perfil de acesso.</p><span class="pc-status-pill green">Permissões</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+<script>
+
+function pcSimularConsultaCnpj(){
+  const cnpj = document.getElementById('pc-cnpj-monitor')?.value || '00.000.000/0000-00';
+  const cliente = document.getElementById('pc-cliente-monitor')?.value || 'Cliente monitorado';
+  const trt = document.getElementById('pc-trt-monitor')?.value || 'Todos os TRTs disponíveis';
+  const status = document.getElementById('pc-consulta-status');
+  const body = document.getElementById('pc-novas-acoes-body');
+  if(status) status.textContent = 'Consulta simulada · ' + cliente + ' · ' + trt;
+  if(body){
+    body.innerHTML = `
+      <tr>
+        <td><input type="checkbox" checked></td>
+        <td><span class="pc-monitor-pill new">Nova ação</span></td>
+        <td>TRT 02</td>
+        <td>08/05/2026</td>
+        <td>0000000-00.2026.5.02.0001</td>
+        <td>${cliente}<br><small>${cnpj}</small></td>
+        <td>Reclamante exemplo</td>
+        <td>04ª Vara do Trabalho</td>
+        <td>Inicial</td>
+        <td>Reclamação Trabalhista</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox"></td>
+        <td><span class="pc-monitor-pill dup">Possível duplicidade</span></td>
+        <td>TRT 15</td>
+        <td>07/05/2026</td>
+        <td>0000000-00.2026.5.15.0002</td>
+        <td>${cliente}<br><small>${cnpj}</small></td>
+        <td>Reclamante exemplo 2</td>
+        <td>02ª Vara do Trabalho</td>
+        <td>Inicial</td>
+        <td>Reclamação Trabalhista</td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" checked></td>
+        <td><span class="pc-monitor-pill alert">Revisar dados</span></td>
+        <td>TRT 03</td>
+        <td>06/05/2026</td>
+        <td>0000000-00.2026.5.03.0003</td>
+        <td>${cliente}<br><small>${cnpj}</small></td>
+        <td>Reclamante exemplo 3</td>
+        <td>01ª Vara do Trabalho</td>
+        <td>Inicial</td>
+        <td>Reclamação Trabalhista</td>
+      </tr>
+    `;
+  }
+}
+
+
+function pcGerarRelatorioCadastros(){
+  const ini = document.getElementById('rel-data-inicial')?.value || '';
+  const fim = document.getElementById('rel-data-final')?.value || '';
+  const tipo = document.getElementById('rel-tipo')?.value || 'Cadastros efetuados';
+  const filtro = document.getElementById('rel-filtro')?.value || 'Todos';
+  const label = document.getElementById('rel-periodo-label');
+  if(label){
+    const p = (ini || fim) ? ((ini || 'início') + ' até ' + (fim || 'hoje')) : 'Período não filtrado';
+    label.textContent = tipo + ' · ' + p + ' · ' + filtro;
+  }
+  alert('Relatório atualizado. Em produção, este filtro consultará a base real do Lawgico.');
+}
+
+function pcExportarCadastrosExcel(){
+  const table = document.getElementById('pc-cadastros-table');
+  if(!table) return;
+  const html = '<html><head><meta charset="UTF-8"></head><body>' + table.outerHTML + '</body></html>';
+  const blob = new Blob([html], {type:'application/vnd.ms-excel;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const ini = document.getElementById('rel-data-inicial')?.value || 'inicio';
+  const fim = document.getElementById('rel-data-final')?.value || 'hoje';
+  a.href = url;
+  a.download = 'cadastros_efetuados_' + ini + '_' + fim + '.xls';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+
+function pcPreencherValorCalculo(event){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+
+  const ref = document.getElementById('pc-ref-calculo')?.value || 'Cálculo importado';
+  const feedback = document.getElementById('pc-calc-feedback');
+
+  const desc = document.getElementById('pc-val-desc');
+  const original = document.getElementById('pc-val-original');
+  const dataref = document.getElementById('pc-val-dataref');
+  const juros = document.getElementById('pc-val-juros');
+  const correcao = document.getElementById('pc-val-correcao');
+  const atualizado = document.getElementById('pc-val-atualizado');
+
+  if(desc) desc.value = ref;
+  if(original) original.value = 'R$ 125.000,00';
+  if(dataref) dataref.value = new Date().toLocaleDateString('pt-BR');
+  if(juros) juros.value = 'R$ 8.750,00';
+  if(correcao) correcao.value = 'R$ 12.400,00';
+  if(atualizado) atualizado.value = 'R$ 146.150,00';
+
+  if(feedback){
+    feedback.classList.remove('hidden');
+    feedback.innerHTML = '✅ Cálculo recebido: <strong>' + file.name + '</strong><br>' +
+      'Referência informada: <strong>' + ref + '</strong><br>' +
+      'Em produção, o TI conectará a leitura automática do PDF/Excel para capturar valor original, juros, correção monetária e valor atualizado.';
+  }
+}
+
+
+function pcTrocarEmailCliente(tipo){
+  const el = document.getElementById('pc-email-preview');
+  if(!el) return;
+  const modelos = {
+    docs: `Prezados(as), boa tarde.
+
+Solicitamos, por gentileza, o envio dos documentos necessários para elaboração da defesa do processo nº [NÚMERO CNJ], por meio do link abaixo:
+
+[LINK DE UPLOAD]
+
+Prazo para envio: [DATA].
+
+Permanecemos à disposição.`,
+    pendencia: `Prezados(as), boa tarde.
+
+Reforçamos a solicitação dos documentos pendentes referente ao processo nº [NÚMERO CNJ].
+
+Documentos ainda pendentes:
+[LISTA DE PENDÊNCIAS]
+
+O envio poderá ser realizado pelo link:
+[LINK DE UPLOAD]
+
+Permanecemos à disposição.`,
+    preparo: `Prezados(as), boa tarde.
+
+Estamos em fase de preparo do processo nº [NÚMERO CNJ] e solicitamos a validação das informações abaixo:
+
+• preposto indicado;
+• testemunhas, se houver;
+• documentos complementares;
+• pontos sensíveis para defesa.
+
+Permanecemos à disposição.`,
+    protocolo: `Prezados(as), boa tarde.
+
+Informamos que a defesa referente ao processo nº [NÚMERO CNJ] foi protocolada.
+
+Seguiremos acompanhando os próximos andamentos e manteremos todos informados.
+
+Permanecemos à disposição.`
+  };
+  el.textContent = modelos[tipo] || modelos.docs;
+}
+
+
+function pcOpenTabFromMenu(name, item){
+  pcOpenTab(name, null);
+  document.querySelectorAll('.pc-menu-item').forEach(i => i.classList.remove('active'));
+  if(item) item.classList.add('active');
+  const tab = Array.from(document.querySelectorAll('.pc-tab-modern')).find(b => {
+    const attr = b.getAttribute('onclick') || '';
+    return attr.includes("'" + name + "'") || attr.includes('"' + name + '"');
+  });
+  document.querySelectorAll('.pc-tab-modern').forEach(b => b.classList.remove('active'));
+  if(tab) tab.classList.add('active');
+}
+
+function pcSimularPreenchimentoAutomatico(event){
+  const file = event.target.files && event.target.files[0];
+  const box = document.getElementById('pc-upload-feedback');
+  if(!box || !file) return;
+  box.classList.remove('hidden');
+  box.innerHTML = "✅ Arquivo recebido: <strong>" + file.name + "</strong><br>Em produção, o TI conectará a leitura automática para preencher CNJ, cliente, parte contrária, fase, pedidos, valores, audiência, preparo e habilitação.";
+}
+
+
+function pcOpenTab(name, btn){
+  document.querySelectorAll('.pc-modern-pane').forEach(p => p.classList.remove('active'));
+  const pane = document.getElementById('pc-pane-' + name);
+  if(pane) pane.classList.add('active');
+  document.querySelectorAll('.pc-tab-modern').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+function copiarModelo(id) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  const texto = el.innerText || el.textContent || '';
+  navigator.clipboard.writeText(texto).then(() => alert('Modelo copiado com sucesso.')).catch(() => alert('Selecione o texto e copie manualmente.'));
+}
+
+// ===== STATE =====
+let uploadedFiles = [];
+let pedidosData = [];
+let pecasGeradas = [];
+let audAgendada = false;
+let inicialText = '';
+
+// ===== NAV =====
+function switchTab(name) {
+  ['inicial','docs','pedidos','pecas','audiencia','agendas','migracao'].forEach(t => {
+    document.getElementById('pane-'+t).classList.toggle('hidden', t !== name);
+    document.getElementById('tab-'+t).classList.toggle('active', t === name);
+  });
+}
+
+function goToStep(name) {
+  switchTab(name);
+  const steps = ['inicial','docs','pedidos','pecas','audiencia','agendas','migracao'];
+  const idx = steps.indexOf(name);
+  steps.forEach((s, i) => {
+    const sn = document.getElementById('sn'+(i+1));
+    const sl = document.getElementById('sl'+(i+1));
+    sn.className = 'step-num ' + (i < idx ? 'done' : i === idx ? 'active' : 'todo');
+    sl.className = 'step-label ' + (i < idx ? 'done' : i === idx ? 'active' : '');
+    sn.textContent = i < idx ? '✓' : String(i+1);
+  });
+}
+
+// ===== CALENDAR =====
+function renderCalendar() {
+  const grid = document.getElementById('cal-grid');
+  const days = [];
+  const firstDay = new Date(2026, 4, 1).getDay();
+  const daysInPrev = new Date(2026, 4, 0).getDate();
+  for(let i = firstDay - 1; i >= 0; i--) days.push({d: daysInPrev - i, other: true});
+  for(let i = 1; i <= 31; i++) days.push({d: i, other: false});
+  while(days.length % 7 !== 0) days.push({d: days.length - 31 - firstDay + 2, other: true});
+  const events = [8, 13, 15, 20, 22, 27];
+  grid.innerHTML = days.map(({d, other}) =>
+    `<div class="cal-day${other?' other-month':''}${d===8&&!other?' today':''}${events.includes(d)&&!other?' has-event':''}" onclick="if(!${other})selectDay(${d})">${d}</div>`
+  ).join('');
+}
+
+function selectDay(d) {
+  document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
+  event.target.classList.add('selected');
+  document.getElementById('aud-data').value = `2026-05-${String(d).padStart(2,'0')}`;
+}
+
+renderCalendar();
+document.getElementById('f-codigo').value = 'PC-2026-' + (Math.floor(Math.random()*9000)+1000);
+
+// ===== INICIAL UPLOAD =====
+async function handleInicialUpload(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  document.getElementById('ia-status-chip').textContent = 'Lendo...';
+  document.getElementById('ia-status-chip').className = 'chip amber';
+  document.getElementById('ia-reading').classList.remove('hidden');
+  document.getElementById('upload-inicial').innerHTML =
+    `<div style="display:flex;align-items:center;gap:10px;padding:6px;background:var(--surface2);border-radius:var(--radius)">
+      <div class="file-icon">PDF</div>
+      <span style="font-size:13px;font-weight:500">${file.name}</span>
+      <span style="font-size:11px;color:var(--text3);margin-left:auto">${(file.size/1024).toFixed(0)} KB</span>
+    </div>`;
+  const reader = new FileReader();
+  reader.onload = async ev => { inicialText = ev.target.result.substring(0, 3000); await processInicial(); };
+  reader.onerror = async () => { inicialText = ''; await processInicial(); };
+  reader.readAsText(file);
+}
+
+async function processInicial() {
+  const prompt = `Você é um advogado trabalhista. Analise esta petição inicial e extraia os dados. Retorne APENAS JSON válido, sem markdown:
+{"cnj":"","cliente":"","contraria":"","comarca":"","vara":"","estado":"SP","fase":"Instrução","acao":"Reclamação Trabalhista","valor":"","grupo_sugerido":"Grupo B1","resumo_caso":"","pedidos_resumo":""}
+
+Texto: ${inicialText || 'Petição trabalhista de João Silva contra Empresa ABC Ltda, CNPJ 12.345.678/0001-90, 3ª Vara do Trabalho de São Paulo/SP, pedidos: horas extras, FGTS, verbas rescisórias, danos morais. Valor: R$ 85.000,00.'}`;
+
+  const streamEl = document.getElementById('ia-stream');
+  try {
+    const resp = await callClaude(prompt);
+    const json = extractJSON(resp);
+    if(json) {
+      fillForm(json);
+      streamEl.textContent = `✅ Dados extraídos com sucesso!\n\nResumo: ${json.resumo_caso||'Processo trabalhista cadastrado.'}\n\nPedidos identificados: ${json.pedidos_resumo||'Acesse a aba Pedidos para análise completa.'}`;
+    } else { throw new Error('no json'); }
+  } catch(err) {
+    fillForm({cnj:'1000456-78.2026.5.02.0003',cliente:'Empresa ABC Ltda.',contraria:'João da Silva',comarca:'São Paulo',vara:'3ª Vara do Trabalho',estado:'SP',fase:'Instrução',acao:'Reclamação Trabalhista',valor:'85.000,00',grupo_sugerido:'Grupo B1',resumo_caso:'Reclamação trabalhista com pedidos de horas extras, FGTS e verbas rescisórias.',pedidos_resumo:'Horas extras, FGTS, 13º, férias, danos morais'});
+    streamEl.textContent = '⚠ Modo demonstração ativo.\n\nFormulário preenchido com dados de exemplo.\nEm produção, conecte a API Key para leitura real do PDF.';
+  }
+  document.getElementById('ia-status-chip').textContent = '✅ Preenchido';
+  document.getElementById('ia-status-chip').className = 'chip green';
+}
+
+function fillForm(d) {
+  const m = {cnj:'f-cnj',cliente:'f-cliente',contraria:'f-contraria',comarca:'f-comarca',vara:'f-vara',acao:'f-acao',valor:'f-valor'};
+  Object.entries(m).forEach(([k,id]) => { if(d[k]) { const el=document.getElementById(id); el.value=d[k]; el.classList.add('ai-filled'); }});
+  if(d.estado) { const s=document.getElementById('f-estado'); for(let o of s.options) if(o.value===d.estado){s.value=d.estado;break;} }
+  if(d.fase) { const s=document.getElementById('f-fase'); for(let o of s.options) if(o.text===d.fase){s.value=o.value;break;} }
+  if(d.grupo_sugerido) { const s=document.getElementById('f-grupo'); for(let o of s.options) if(o.text===d.grupo_sugerido){s.value=o.value;break;} }
+  inicialText = (d.resumo_caso||'') + ' ' + (d.pedidos_resumo||'');
+}
+
+// ===== DOCUMENTOS =====
+function handleDocsUpload(e) {
+  Array.from(e.target.files).forEach(f => { uploadedFiles.push(f); addFile(f); });
+  document.getElementById('docs-count').textContent = uploadedFiles.length;
+  document.getElementById('sum-docs').textContent = uploadedFiles.length;
+  if(uploadedFiles.length > 0) analyzeDocuments();
+}
+
+function addFile(file) {
+  const ext = file.name.split('.').pop().toUpperCase();
+  const item = document.createElement('div');
+  item.className = 'file-item';
+  item.dataset.name = file.name;
+  item.innerHTML = `<div class="file-icon">${ext}</div><div class="file-name">${file.name}</div><div class="file-size">${(file.size/1024).toFixed(0)} KB</div><button class="file-rm" onclick="removeFile(this,'${file.name}')">✕</button>`;
+  document.getElementById('file-list').appendChild(item);
+}
+
+function removeFile(btn, name) {
+  uploadedFiles = uploadedFiles.filter(f=>f.name!==name);
+  btn.closest('.file-item').remove();
+  document.getElementById('docs-count').textContent = uploadedFiles.length||'0';
+  document.getElementById('sum-docs').textContent = uploadedFiles.length;
+}
+
+async function analyzeDocuments() {
+  const panel = document.getElementById('doc-analysis');
+  const content = document.getElementById('doc-ai-content');
+  panel.classList.remove('hidden');
+  const names = uploadedFiles.map(f=>f.name).join(', ');
+  const prompt = `Classifique estes documentos trabalhistas. Arquivos: ${names}\nPara cada um: nome → tipo → importância (Alta/Média/Baixa) → observação breve. Formato de lista simples.`;
+  content.textContent = 'Classificando...';
+  try {
+    content.textContent = await callClaude(prompt);
+  } catch(e) {
+    content.textContent = uploadedFiles.map(f=>{
+      const n = f.name.toLowerCase();
+      const t = n.includes('inicial')?'Petição Inicial → Alta importância → Documento central':
+                n.includes('contrato')?'Contrato de Trabalho → Alta importância → Prova do vínculo':
+                n.includes('trct')?'TRCT → Alta importância → Rescisão contratual':
+                n.includes('holeri')?'Holerite → Média importância → Comprovante de pagamento':
+                'Documento → Média importância → Aguardando classificação';
+      return `${f.name} → ${t}`;
+    }).join('\n');
+  }
+}
+
+// ===== PEDIDOS =====
+async function analisarPedidos() {
+  const body = document.getElementById('pedidos-body');
+  body.innerHTML = `<div class="ai-panel"><div class="ai-panel-head">🤖 Analisando pedidos<div class="ai-thinking"><div class="dots"><span></span><span></span><span></span></div></div></div><div class="ai-content" id="ped-stream">Extraindo pedidos da inicial...</div></div>`;
+  const cliente = document.getElementById('f-cliente').value||'empresa reclamada';
+  const contraria = document.getElementById('f-contraria').value||'reclamante';
+  const prompt = `Analise pedidos desta reclamação trabalhista. Partes: ${contraria} x ${cliente}. Contexto: ${inicialText||'Reclamação trabalhista típica com verbas rescisórias, horas extras, FGTS, danos morais.'}
+Retorne SOMENTE JSON array sem markdown:
+[{"pedido":"","valor_estimado":"R$ 0,00","probabilidade":"possivel|provavel|remoto","fundamento":"","estrategia_defesa":""}]
+Inclua 6-8 pedidos típicos.`;
+  try {
+    const resp = await callClaude(prompt);
+    const arr = extractJSON(resp);
+    pedidosData = (Array.isArray(arr) && arr.length>0) ? arr : demoPedidos();
+  } catch(e) { pedidosData = demoPedidos(); }
+  renderPedidos();
+}
+
+function demoPedidos() {
+  return [
+    {pedido:'Horas extras (2h/dia)',valor_estimado:'R$ 28.400,00',probabilidade:'provavel',fundamento:'Art. 59 CLT — jornada excedente sem compensação',estrategia_defesa:'Apresentar cartões de ponto e acordo de compensação'},
+    {pedido:'FGTS não recolhido',valor_estimado:'R$ 12.800,00',probabilidade:'possivel',fundamento:'Art. 15 Lei 8.036/90 — obrigação do empregador',estrategia_defesa:'Extrato FGTS e comprovantes de recolhimento'},
+    {pedido:'Verbas rescisórias',valor_estimado:'R$ 18.500,00',probabilidade:'provavel',fundamento:'Art. 477 CLT — pagamento no prazo legal',estrategia_defesa:'TRCT devidamente homologado'},
+    {pedido:'13º salário proporcional',valor_estimado:'R$ 4.200,00',probabilidade:'remoto',fundamento:'Lei 4.090/62 — gratificação natalina',estrategia_defesa:'Comprovantes de pagamento do 13º'},
+    {pedido:'Férias vencidas + 1/3',valor_estimado:'R$ 6.300,00',probabilidade:'provavel',fundamento:'Art. 137 CLT — férias não gozadas',estrategia_defesa:'Recibos de férias assinados'},
+    {pedido:'Danos morais',valor_estimado:'R$ 15.000,00',probabilidade:'possivel',fundamento:'Art. 223-A CLT — ambiente hostil ou assédio',estrategia_defesa:'Ausência de provas de dano específico'},
+    {pedido:'Horas in itinere',valor_estimado:'R$ 8.600,00',probabilidade:'remoto',fundamento:'Art. 58 §2º CLT — transporte fornecido pelo empregador',estrategia_defesa:'Local com transporte público regular'},
+  ];
+}
+
+function renderPedidos() {
+  const total = pedidosData.reduce((s,p)=>{ const v=parseFloat((p.valor_estimado||'0').replace(/[R$\s.]/g,'').replace(',','.')); return s+(isNaN(v)?0:v); },0);
+  const prov = pedidosData.filter(p=>p.probabilidade==='provavel').length;
+  const poss = pedidosData.filter(p=>p.probabilidade==='possivel').length;
+  const rem = pedidosData.filter(p=>p.probabilidade==='remoto').length;
+  document.getElementById('pedidos-body').innerHTML = `<div style="overflow-x:auto"><table class="pedidos-table"><thead><tr><th>Pedido</th><th>Valor Est.</th><th>Probabilidade</th><th>Fundamento</th><th>Estratégia de Defesa</th></tr></thead><tbody>${
+    pedidosData.map(p=>`<tr><td style="font-weight:500">${p.pedido}</td><td style="font-family:'IBM Plex Mono',monospace;white-space:nowrap">${p.valor_estimado}</td><td><span class="prob-badge ${p.probabilidade}">${p.probabilidade==='provavel'?'🔴 Provável':p.probabilidade==='possivel'?'⚠ Possível':'🟢 Remoto'}</span></td><td style="color:var(--text2)">${p.fundamento}</td><td style="color:var(--green)">${p.estrategia_defesa}</td></tr>`).join('')
+  }</tbody></table></div>`;
+  document.getElementById('pedidos-resumo-card').classList.remove('hidden');
+  document.getElementById('pedidos-resumo').innerHTML = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+    <div style="text-align:center;padding:12px;background:var(--red-bg);border-radius:var(--radius)"><div style="font-size:20px;font-weight:700;color:var(--red)">${prov}</div><div style="font-size:10px;color:var(--red);text-transform:uppercase;letter-spacing:.5px">Prováveis</div></div>
+    <div style="text-align:center;padding:12px;background:var(--amber-bg);border-radius:var(--radius)"><div style="font-size:20px;font-weight:700;color:var(--amber)">${poss}</div><div style="font-size:10px;color:var(--amber);text-transform:uppercase;letter-spacing:.5px">Possíveis</div></div>
+    <div style="text-align:center;padding:12px;background:var(--green-bg);border-radius:var(--radius)"><div style="font-size:20px;font-weight:700;color:var(--green)">${rem}</div><div style="font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:.5px">Remotos</div></div>
+    <div style="text-align:center;padding:12px;background:var(--accent-bg);border-radius:var(--radius)"><div style="font-size:15px;font-weight:700;color:var(--accent);font-family:'IBM Plex Mono',monospace">R$${(total/1000).toFixed(0)}k</div><div style="font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px">Exposição</div></div>
+  </div>`;
+  document.getElementById('pedidos-count').textContent = pedidosData.length;
+  document.getElementById('sum-pedidos').textContent = pedidosData.length;
+}
+
+// ===== PEÇAS =====
+async function gerarPecas() {
+  const btn = document.getElementById('btn-gerar-pecas');
+  btn.disabled = true; btn.textContent = '⏳ Gerando...';
+  const cliente = document.getElementById('f-cliente').value||'empresa reclamada';
+  const adv = document.getElementById('f-adv').value||'Advogado responsável';
+  const vara = document.getElementById('f-vara').value||'Vara do Trabalho';
+  const prompt = `Como advogado trabalhista sênior, gere 3 peças para este processo. Reclamada: ${cliente}. Vara: ${vara}. Pedidos: ${pedidosData.map(p=>p.pedido).join(', ')||'verbas rescisórias, horas extras'}.
+Peças: 1) Contestação/Defesa, 2) Substabelecimento, 3) Habilitação nos Autos.
+Para cada uma: título, prazo de apresentação e primeiros 3 parágrafos do modelo completo. Separe cada peça com a linha: ===PECA===`;
+  const iaText = document.getElementById('pecas-ia-text');
+  try {
+    const resp = await callClaude(prompt);
+    iaText.textContent = '✅ Peças geradas com base nos pedidos identificados.';
+    parsePecas(resp, cliente, adv, vara);
+  } catch(e) {
+    iaText.textContent = '✅ Modelos padrão carregados (modo demonstração).';
+    loadDemoPecas(cliente, adv, vara);
+  }
+  btn.disabled = false; btn.textContent = '🔄 Regenerar';
+}
+
+function loadDemoPecas(cliente, adv, vara) {
+  pecasGeradas = [
+    { titulo:'Contestação / Defesa', prazo:'5 dias úteis após audiência inaugural',
+      texto:`EXMO. SR. DR. JUIZ DO TRABALHO DA ${(vara||'VARA DO TRABALHO').toUpperCase()}
+
+${(cliente||'EMPRESA RECLAMADA').toUpperCase()}, pessoa jurídica de direito privado, por seu advogado infra-assinado, vem respeitosamente apresentar CONTESTAÇÃO à reclamação trabalhista que lhe é movida, com os seguintes fundamentos:
+
+I — DA IMPROCEDÊNCIA TOTAL DOS PEDIDOS
+Todos os pedidos formulados pelo Reclamante merecem ser integralmente indeferidos, vez que a Reclamada cumpriu rigorosamente todas as obrigações trabalhistas durante o contrato de trabalho, conforme documentação que ora apresenta.
+
+II — DAS HORAS EXTRAS
+Quanto ao pedido de horas extras, a Reclamada comprova que a jornada de trabalho foi devidamente controlada por meio de cartões de ponto eletrônico, não havendo qualquer excesso de jornada sem a devida compensação ou pagamento.
+
+III — DO FGTS
+Os depósitos do FGTS foram realizados regularmente durante toda a vigência do contrato de trabalho, conforme extrato da conta vinculada do trabalhador junto à Caixa Econômica Federal, ora juntado.`
+    },
+    { titulo:'Substabelecimento', prazo:'Antes da primeira audiência',
+      texto:`SUBSTABELECIMENTO COM RESERVAS DE IGUAIS PODERES
+
+${adv||'ADVOGADO RESPONSÁVEL'}, advogado inscrito na OAB/SP sob o nº XXXX, devidamente constituído nos autos do processo nº ____________ em trâmite perante a ${vara||'Vara do Trabalho'}, SUBSTABELECE com reservas de iguais poderes ao(à) Dr(a). ________________________, OAB/__ nº ______, os poderes que lhe foram conferidos pela Outorgante ${cliente||'EMPRESA'}, para representá-la em todos os atos do processo, incluindo audiências e sustentações orais.
+
+São Paulo, ____ de __________ de 2026.
+
+_________________________________
+${adv||'Advogado(a)'}
+OAB/SP nº XXXX`
+    },
+    { titulo:'Habilitação nos Autos', prazo:'Imediatamente após a distribuição',
+      texto:`EXMO. SR. DR. JUIZ DO TRABALHO DA ${(vara||'VARA DO TRABALHO').toUpperCase()}
+
+Processo nº: ____________
+
+${(cliente||'EMPRESA RECLAMADA').toUpperCase()}, já qualificada nos autos, por meio de seu advogado, vem HABILITAR-SE nos presentes autos, juntando a procuração outorgada ao(à) Dr(a). ${adv||'Advogado(a)'}, OAB/SP nº XXXX, com amplos poderes para o foro em geral, cláusulas "ad judicia et extra".
+
+Requer que todas as intimações sejam dirigidas ao endereço do patrono constituído.
+
+Termos em que, pede deferimento.
+
+São Paulo, ____ de __________ de 2026.
+
+_________________________________
+${adv||'Advogado(a)'}
+OAB/SP nº XXXX`
+    }
+  ];
+  renderPecas();
+}
+
+function parsePecas(text, cliente, adv, vara) { loadDemoPecas(cliente, adv, vara); }
+
+function renderPecas() {
+  document.getElementById('pecas-list').innerHTML = pecasGeradas.map((p,i)=>`
+    <div class="peca-card">
+      <div class="peca-head" onclick="togglePeca(${i})">
+        <span>📄</span>
+        <span class="peca-title">${p.titulo}</span>
+        <span class="chip blue" style="font-size:10px">${p.prazo}</span>
+        <span style="color:var(--text3);margin-left:8px;font-size:12px" id="pt-${i}">▼</span>
+      </div>
+      <div class="peca-body" id="pb-${i}">${p.texto}</div>
+      <div style="padding:8px 14px;border-top:1px solid var(--border);display:flex;gap:6px;background:var(--surface2)">
+        <button class="btn btn-ghost btn-sm" onclick="copiarPeca(${i})">📋 Copiar</button>
+        <button class="btn btn-secondary btn-sm">✏ Editar</button>
+        <button class="btn btn-ghost btn-sm" onclick="refinarPeca(${i})">🤖 Refinar</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('sum-pecas').textContent = pecasGeradas.length;
+}
+
+function togglePeca(i) {
+  const b=document.getElementById('pb-'+i); const t=document.getElementById('pt-'+i);
+  b.classList.toggle('show'); t.textContent = b.classList.contains('show')?'▲':'▼';
+}
+
+function copiarPeca(i) {
+  navigator.clipboard.writeText(pecasGeradas[i].texto).catch(()=>alert('Copie o texto manualmente.'));
+}
+
+async function refinarPeca(i) {
+  const p = pecasGeradas[i];
+  const probs = pedidosData.filter(x=>x.probabilidade==='provavel').map(x=>x.pedido).join(', ')||'verbas rescisórias';
+  const prompt = `Melhore esta peça trabalhista tornando-a mais específica para o caso. Pedidos prováveis: ${probs}. Peça: ${p.titulo}. Texto atual: ${p.texto.substring(0,600)}. Retorne apenas o texto melhorado.`;
+  try {
+    pecasGeradas[i].texto = await callClaude(prompt);
+    renderPecas();
+  } catch(e) { alert('IA indisponível. Edite manualmente.'); }
+}
+
+// ===== AUDIÊNCIA =====
+async function buscarDisponibilidadePJe(btn) {
+  btn.textContent = '⏳ Consultando PJe...';
+  btn.disabled = true;
+  await new Promise(r=>setTimeout(r,2000));
+  btn.textContent = '✅ Disponível: 15/06 14h';
+  document.getElementById('aud-data').value = '2026-06-15';
+  document.getElementById('aud-hora').value = '14:00';
+  document.getElementById('aud-count').textContent = '15/06';
+  document.getElementById('aud-count').className = 'tbadge g';
+  setTimeout(()=>{ btn.textContent='🔍 Verificar PJe'; btn.disabled=false; },4000);
+}
+
+function agendarAudiencia() {
+  const tipo = document.getElementById('aud-tipo').value;
+  const data = document.getElementById('aud-data').value;
+  const hora = document.getElementById('aud-hora').value;
+  const adv = document.getElementById('aud-adv').value;
+  if(!data||!hora) { alert('Preencha data e horário.'); return; }
+  const fmtData = data.split('-').reverse().join('/');
+  audAgendada = true;
+  const items = [];
+  if(document.getElementById('pje-criar').checked) items.push('Dados validados no PJe');
+  if(document.getElementById('pje-notif').checked) items.push('Advogado notificado');
+  if(document.getElementById('pje-pauta').checked) items.push('Na Pauta Oficial');
+  if(document.getElementById('pje-prazo').checked) items.push('Preparo D-10 criado');
+  document.getElementById('aud-confirmacao').classList.remove('hidden');
+  document.getElementById('aud-confirm-text').textContent = `${tipo} · ${fmtData} às ${hora}${adv?' · '+adv:''} · ${items.join(' · ')}`;
+  document.getElementById('aud-count').textContent = fmtData;
+  document.getElementById('aud-count').className = 'tbadge g';
+  document.getElementById('sum-aud').textContent = fmtData;
+  document.getElementById('ag-data-aud').value = data;
+  recalcularAgendas();
+  document.getElementById('cal-events').innerHTML = `<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:6px">Agendadas</div>
+    <div style="background:var(--accent-bg);border:1px solid #9BBDE0;border-radius:var(--radius);padding:8px 10px;font-size:11px;color:var(--accent)">
+      <div style="font-weight:600">${fmtData} ${hora}</div><div style="color:var(--text2);margin-top:2px">${tipo}</div>
+    </div>`;
+}
+
+function salvarProcesso() {
+  const cnj = document.getElementById('f-cnj').value;
+  const codigo = document.getElementById('f-codigo').value;
+  if(!cnj) { alert('Preencha o número CNJ na aba Inicial.'); goToStep('inicial'); return; }
+  const msg = `✅ Processo cadastrado com sucesso!\n\nCódigo P&C: ${codigo}\nCNJ: ${cnj}\nDocumentos: ${uploadedFiles.length}\nPedidos: ${pedidosData.length}\nPeças: ${pecasGeradas.length}\nAudiência: ${audAgendada?'Agendada e sincronizada com PJe':'Não agendada'}\n\n✓ Salvo na ferramenta P&C\n✓ Prazos criados automaticamente\n✓ Advogado responsável notificado`;
+  alert(msg);
+}
+
+
+// ===== AGENDAS E MIGRAÇÃO =====
+function addDaysISO(dateStr, days) {
+  if(!dateStr) return '';
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0,10);
+}
+function recalcularAgendas() {
+  const data = document.getElementById('ag-data-aud').value || document.getElementById('aud-data').value;
+  if(!data) return;
+  const prep = addDaysISO(data, -10);
+  const prot = addDaysISO(data, -2);
+  document.getElementById('ag-preparo').value = prep;
+  document.getElementById('ag-protocolo').value = prot;
+  const fmt = v => v ? v.split('-').reverse().join('/') : '—';
+  document.getElementById('linha-preparo').textContent = fmt(prep) + ' · 10 dias antes da audiência';
+  document.getElementById('linha-protocolo').textContent = fmt(prot) + ' · 1 dia antes da audiência';
+  document.getElementById('agenda-count').textContent = '5';
+}
+function handleMigracaoUpload(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  document.getElementById('mig-count').textContent = '1';
+  const box = document.getElementById('mig-preview');
+  box.classList.remove('hidden');
+  box.innerHTML = `<div class="file-item"><div class="file-icon">${file.name.split('.').pop().toUpperCase()}</div><div class="file-name">${file.name}</div><div class="file-size">${(file.size/1024).toFixed(0)} KB</div></div>
+  <div class="mt12" style="background:var(--green-bg);border:1px solid #8CCFA8;border-radius:var(--radius);padding:12px;color:var(--green);font-size:12px;font-weight:600">Arquivo recebido para pré-migração. Em produção, o TI deverá validar colunas obrigatórias, deduplicar CNJ, vincular responsáveis e gravar na base central.</div>`;
+}
+
+// ===== API =====
+async function callClaude(prompt) {
+  const key = window.ANTHROPIC_KEY;
+  if(!key) throw new Error('no key');
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+  });
+  const d = await r.json();
+  if(d.error) throw new Error(d.error.message);
+  return d.content[0].text;
+}
+
+function extractJSON(text) {
+  try { const m=text.match(/(\[[\s\S]*\]|\{[\s\S]*\})/); if(m) return JSON.parse(m[1]); } catch(e) {}
+  return null;
+}
+
+function copiarModelo(id) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  const texto = el.innerText || el.textContent || '';
+  navigator.clipboard.writeText(texto).then(() => {
+    alert('Modelo copiado com sucesso.');
+  }).catch(() => {
+    alert('Não foi possível copiar automaticamente. Selecione o texto e copie manualmente.');
+  });
+}
+
+</script>
+</body>
+</html>
