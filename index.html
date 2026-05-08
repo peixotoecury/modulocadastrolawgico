@@ -2205,131 +2205,130 @@ body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: v
 }
 
 
-/* ═══════════════════════════════════════════════
-   MOBILE FIRST — Otimização para uso em app/celular
-   Breakpoints: 480px (phone), 768px (tablet)
-   ═══════════════════════════════════════════════ */
 
-/* Melhora tap targets e scroll touch */
+/* ═══════════════════════════════════════════════════
+   MOBILE — Peixoto & Cury — Módulo Cadastro Lawgico
+   ═══════════════════════════════════════════════════ */
+
+/* Touch globals */
 * { -webkit-tap-highlight-color: transparent; }
 input, select, textarea, button { touch-action: manipulation; }
-.content, .sidebar, .tab-bar { -webkit-overflow-scrolling: touch; }
 
-/* ── SMARTPHONE (≤ 480px) ── */
-@media (max-width: 480px) {
-
-  /* Header compacto */
-  .app-header { height: 48px; padding: 0 14px; gap: 10px; }
-  .app-header .logo { font-size: 13px; }
-  .app-header .breadcrumb { display: none; }
-  .app-header .hbadge { padding: 3px 9px; font-size: 10px; }
-  .pc-header { height: 52px !important; padding: 0 14px !important; }
-
-  /* Sidebar vira drawer (oculta por padrão, abre via botão) */
-  .sidebar { display: none; position: fixed; top: 0; left: 0; height: 100vh; width: 80vw; max-width: 280px; z-index: 200; box-shadow: 4px 0 20px rgba(0,0,0,.25); transition: transform .25s ease; }
-  .sidebar.open { display: flex !important; transform: translateX(0); }
-
-  /* Layout sem sidebar */
-  .layout { height: calc(var(--vh, 1vh) * 100 - 48px); }
-
-  /* Tab bar: scroll horizontal com abas maiores */
-  .tab-bar { padding: 0 10px; gap: 0; height: 40px; scrollbar-width: none; }
-  .tab-bar::-webkit-scrollbar { display: none; }
-  .tab { padding: 0 12px; font-size: 11px; height: 40px; white-space: nowrap; flex-shrink: 0; }
-
-  /* Conteúdo */
-  .content { padding: 12px; }
-
-  /* Formulários — 1 coluna */
-  .form-grid,
-  .form-grid-3,
-  [style*="grid-template-columns: 1fr 1fr"],
-  [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
-
-  /* Cards */
-  .card { margin-bottom: 10px; border-radius: 10px; }
-  .card-head { padding: 10px 13px; font-size: 11px; gap: 7px; }
-  .card-body { padding: 12px 13px; }
-
-  /* Campos de formulário — mais fáceis de tocar */
-  .field input, .field select, .field textarea { font-size: 15px !important; padding: 10px 11px !important; min-height: 44px; }
-  .field label { font-size: 10px; }
-
-  /* Botões — altura mínima 44px para touch */
-  .btn, button.btn { min-height: 44px; padding: 10px 16px; font-size: 13px; border-radius: 8px; }
-
-  /* Tabelas — scroll horizontal */
-  .card-body table, .tbl { display: block; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-
-  /* Ocultar colunas secundárias em tabelas */
-  .tbl th:nth-child(n+5), .tbl td:nth-child(n+5) { display: none; }
-
-  /* Stats em 2 colunas */
-  .stats-row, [style*="grid-template-columns: repeat(4"] { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
-
-  /* Chips e badges menores */
-  .chip, .badge { font-size: 10px !important; padding: 2px 8px !important; }
-
-  /* Upload zone compacta */
-  .upload-zone, .uz { padding: 18px 12px !important; }
-  .upload-zone .upload-icon, .uz .uz-ico { font-size: 24px !important; }
-  .upload-zone .upload-title, .uz .uz-t { font-size: 12px !important; }
-
-  /* Stepper — compacto */
-  .steps-row { padding: 8px 10px; gap: 2px; overflow-x: auto; scrollbar-width: none; }
-  .steps-row::-webkit-scrollbar { display: none; }
-  .step-label:not(.active):not(.done) { display: none; }
-  .step-sep { min-width: 10px; }
-
-  /* Calendário — coluna única */
-  #aud-grid, .aud-grid { grid-template-columns: 1fr !important; }
-
-  /* Botão hamburguer para sidebar */
-  .mob-menu-btn { display: flex !important; }
-
-  /* Login screen */
-  .pc-login-overlay { padding: 16px !important; }
-  .pc-login-box { padding: 24px 18px !important; max-width: 100% !important; border-radius: 14px !important; }
-  .pc-login-box h2 { font-size: 18px !important; }
-}
-
-/* ── TABLET (481px – 768px) ── */
-@media (min-width: 481px) and (max-width: 768px) {
-  .app-header { height: 50px; padding: 0 18px; }
-  .sidebar { display: none; }
-  .layout { height: calc(100vh - 50px); }
-  .content { padding: 14px 18px; }
-  .form-grid-3 { grid-template-columns: 1fr 1fr !important; }
-  .field input, .field select, .field textarea { font-size: 14px !important; min-height: 42px; }
-  .btn, button.btn { min-height: 42px; }
-  .stats-row, [style*="grid-template-columns: repeat(4"] { grid-template-columns: 1fr 1fr !important; }
-  #aud-grid, .aud-grid { grid-template-columns: 1fr !important; }
-}
-
-/* Botão de menu mobile — oculto por padrão no desktop */
+/* Botão hamburguer — oculto no desktop */
 .mob-menu-btn {
   display: none;
   align-items: center;
   justify-content: center;
-  width: 36px; height: 36px;
+  width: 38px; height: 38px;
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,.25);
-  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.3);
+  background: rgba(255,255,255,.12);
   cursor: pointer;
-  font-size: 17px;
+  font-size: 18px;
   color: #fff;
   flex-shrink: 0;
+  margin-right: 4px;
 }
 
-/* Overlay para fechar sidebar */
+/* Overlay escuro ao abrir drawer */
 .mob-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.45);
-  z-index: 199;
+  background: rgba(0,0,0,.5);
+  z-index: 299;
 }
 .mob-overlay.open { display: block; }
+
+/* ── MOBILE: ≤ 1000px — drawer lateral ── */
+@media (max-width: 1000px) {
+
+  /* Mostra o botão hamburguer */
+  .mob-menu-btn { display: flex !important; }
+
+  /* Header compacto */
+  .pc-dashboard-top { height: 52px !important; padding: 0 12px !important; gap: 8px !important; }
+  .pc-top-info h1 { font-size: 13px !important; }
+  .pc-top-info .pc-top-date { display: none; }
+  .pc-top-badge { font-size: 10px !important; padding: 3px 8px !important; }
+
+  /* Shell: 1 coluna */
+  .pc-lm-shell {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    min-height: calc(100vh - 52px) !important;
+  }
+
+  /* Sidebar vira drawer fixo */
+  .pc-lm-left {
+    display: flex !important;
+    flex-direction: column;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    width: 78vw !important;
+    max-width: 290px !important;
+    z-index: 300 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    transform: translateX(-100%) !important;
+    transition: transform .28s cubic-bezier(.4,0,.2,1) !important;
+    box-shadow: none !important;
+    padding-top: 60px !important;
+  }
+
+  .pc-lm-left.open {
+    transform: translateX(0) !important;
+    box-shadow: 6px 0 28px rgba(0,0,0,.3) !important;
+  }
+
+  /* Conteúdo principal ocupa tudo */
+  .pc-lm-main {
+    padding: 12px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Grids — 1 coluna */
+  .form-grid,
+  .form-grid-3 { grid-template-columns: 1fr !important; }
+
+  /* Campos touch-friendly */
+  .field input,
+  .field select,
+  .field textarea {
+    font-size: 15px !important;
+    min-height: 44px !important;
+    padding: 10px 12px !important;
+  }
+
+  /* Botões touch */
+  .btn, button { min-height: 44px !important; }
+
+  /* Tabelas com scroll */
+  .pc-lm-main table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Cards */
+  .card { margin-bottom: 10px !important; }
+
+  /* KPIs em 2 colunas */
+  .pc-quick-kpis,
+  [class*="kpi-grid"],
+  [style*="repeat(4"] { grid-template-columns: 1fr 1fr !important; }
+
+  /* Abas */
+  .tab-bar { padding: 0 8px !important; scrollbar-width: none; }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab { padding: 0 10px !important; font-size: 11px !important; white-space: nowrap; flex-shrink: 0; }
+}
+
+/* ── PHONE: ≤ 480px — ajustes adicionais ── */
+@media (max-width: 480px) {
+  .pc-lm-left { width: 85vw !important; max-width: 320px !important; }
+  .pc-quick-kpis { grid-template-columns: 1fr 1fr !important; }
+  .pc-lm-main { padding: 10px !important; }
+}
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -5577,36 +5576,36 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 <script>
-// Mobile sidebar toggle
+// ── Mobile sidebar drawer ──────────────────────────────────────
 function toggleSidebar() {
-  const sb = document.querySelector('.sidebar');
-  const ov = document.getElementById('mob-overlay');
+  var sb = document.querySelector('.pc-lm-left');
+  var ov = document.getElementById('mob-overlay');
   if (!sb) return;
-  sb.classList.toggle('open');
-  if (ov) ov.classList.toggle('open');
-  document.body.style.overflow = sb.classList.contains('open') ? 'hidden' : '';
+  var isOpen = sb.classList.toggle('open');
+  if (ov) ov.classList.toggle('open', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
 }
 function closeSidebar() {
-  const sb = document.querySelector('.sidebar');
-  const ov = document.getElementById('mob-overlay');
+  var sb = document.querySelector('.pc-lm-left');
+  var ov = document.getElementById('mob-overlay');
   if (sb) sb.classList.remove('open');
   if (ov) ov.classList.remove('open');
   document.body.style.overflow = '';
 }
-// Close sidebar when nav item clicked on mobile
 document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.nav-item, .sidebar .nav-it').forEach(function(el) {
+  // Fechar drawer ao clicar em item do menu (mobile)
+  document.querySelectorAll('.pc-menu-item, .lawgico-subitem, .nav-item').forEach(function(el) {
     el.addEventListener('click', function() {
-      if (window.innerWidth <= 768) closeSidebar();
+      if (window.innerWidth <= 1000) closeSidebar();
     });
   });
-  // Fix viewport height on mobile browsers (address bar issue)
+  // Corrige 100vh no iOS (barra de endereço)
   function setVH() {
     document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
   }
   setVH();
   window.addEventListener('resize', setVH);
-  window.addEventListener('orientationchange', function() { setTimeout(setVH, 100); });
+  window.addEventListener('orientationchange', function() { setTimeout(setVH, 150); });
 });
 </script>
 
